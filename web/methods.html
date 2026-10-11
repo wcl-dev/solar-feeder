@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>方法與資料｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="資料來源、存檔版本、座標處理、分級方式與限制說明。">
-<link rel="stylesheet" href="style.css?v=0.1.2">
+<link rel="stylesheet" href="style.css?v=0.1.3">
 <style>
   .doc { max-width: 860px; }
   .doc h2 { font-size: 19px; margin: 36px 0 8px; padding-top: 4px; }
@@ -19,6 +19,10 @@
   .ne li { background: var(--surface); border: 1px solid var(--ring); border-radius: 6px; padding: 8px 12px; }
   #snap-table td:nth-child(2) { min-width: 240px; white-space: normal; }
   #crs-table td:first-child { min-width: 260px; }
+  .faq { background: var(--surface); border: 1px solid var(--ring); border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .faq summary { cursor: pointer; font-weight: 600; font-size: 14.5px; }
+  .faq[open] summary { margin-bottom: 6px; }
+  .faq p, .faq li { font-size: 14px; }
   .toc { font-size: 13.5px; background: var(--surface); border: 1px solid var(--ring); border-radius: var(--radius); padding: 12px 16px; margin-top: 20px; }
   .toc ol { margin: 6px 0 0; padding-left: 1.4em; columns: 2; }
   @media (max-width: 600px) { .toc ol { columns: 1; } }
@@ -40,6 +44,7 @@
   <nav class="toc" aria-label="目錄"><b>目錄</b>
     <ol>
       <li><a href="#what">這個網站是什麼</a></li>
+      <li><a href="#faq">常見問題</a></li>
       <li><a href="#read">讀圖原則</a></li>
       <li><a href="#sources">資料來源與存檔</a></li>
       <li><a href="#classes">分級方式</a></li>
@@ -47,7 +52,7 @@
       <li><a href="#history">歷次公布</a></li>
       <li><a href="#limits">已知限制與待確認</a></li>
       <li><a href="#update">更新方式</a></li>
-      <li><a href="#license">授權與引用</a></li>
+      <li><a href="#license">授權、引用與致謝</a></li>
     </ol>
   </nav>
 
@@ -56,7 +61,47 @@
   <p>本站<b>不是</b>：台電配電級再生能源可併容量查詢系統（FGIS）的替代品、正式併網判定或選址工具，也不提供投資或申設建議。官方最新參考值請查 <a href="https://service.taipower.com.tw/hcweb/geohc/" rel="noopener">台電 FGIS</a>。</p>
   <p>第一版（v0）範圍：雲林縣、配電饋線層級。69kV／161kV 變電所容量、電網改善工程、跨版本比較將在後續版本加入。</p>
 
-  <h2 id="read">2. 讀圖原則</h2>
+  <h2 id="faq">2. 常見問題</h2>
+  <details class="faq" id="faq-fgis">
+    <summary>這和台電的「配電級再生能源可併容量查詢系統」（FGIS）差在哪？</summary>
+    <p>台電的系統回答「這個地點現在大概能不能接」；本站記錄「台電公開資料在哪一天寫了什麼」，並讓這些數字可以引用與檢驗。</p>
+    <ul>
+      <li><b>細度：</b>台電系統以饋線「區段」顯示、分六級顏色（台電說明全國約 326 萬個區段）；本站使用台電開放資料，一條饋線一個值。</li>
+      <li><b>時間：</b>台電系統只顯示當下；本站保存每一版公開檔案，並標明日期。</li>
+      <li><b>查詢：</b>台電系統可用地址、地標、座標與饋線代號查詢，並有共同升壓站圖層；本站可依饋線代號與鄉鎮查詢。</li>
+      <li><b>引用：</b>本站提供下載、可複製的引用文字與固定連結，並說明每個數字的限制。</li>
+    </ul>
+    <p>因為細度與時間點不同，兩邊數字可能不一致。要查某個地點的最新官方值，請以<a href="https://service.taipower.com.tw/hcweb/geohc/" rel="noopener">台電系統</a>為準；本站不打算取代它。（台電系統說明：<a href="https://service.taipower.com.tw/smartgrid/DERIntegration/Index" rel="noopener">台電技術介紹頁</a>）</p>
+  </details>
+  <details class="faq" id="faq-kiang">
+    <summary>和 kiang 的「台電再生能源可併網容量地圖」差在哪？</summary>
+    <p><a href="https://kiang.github.io/taipower_feeder/" rel="noopener">kiang 的地圖</a>自 2016 年起整理台電公開資料，是這個題目的先行者，使用與本站同一種台電資料，涵蓋全國 17 個縣市，並有村里界圖層。主要差異：</p>
+    <ul>
+      <li><b>資料新舊：</b>該站資料最後更新於 2021 年 9 月；本站使用最新公開版本，並每月檢查是否有新版。</li>
+      <li><b>呈現：</b>該站以同一顏色顯示變壓器，點選後看容量；本站依公布容量分級上色。</li>
+      <li><b>未公布容量的饋線：</b>兩站處理方式不同。本站把「公布為 0」與「台電未列容量」分開，並為鄰縣饋線補上同日全國檔的數值，所以兩站「0」的數量可能不一致。</li>
+      <li><b>版本與引用：</b>本站每一版都存檔並標日期，可下載與引用。</li>
+    </ul>
+    <p>範圍上，本站目前只做雲林，比該站小。</p>
+  </details>
+  <details class="faq" id="faq-yunlin">
+    <summary>為什麼只做雲林？</summary>
+    <p>截至 2025 年 6 月底，台電雲林區營業處的太陽光電等待併網容量，在立法院預算中心報告表列的區處中最高。本站先在一個縣把資料審計、座標驗證與引用方式做紮實，再擴展到其他縣市；全國資料已在本站存檔中。</p>
+  </details>
+  <details class="faq" id="faq-zero">
+    <summary>公布為 0，是不是代表不能併網？</summary>
+    <p>不是。這是台電在特定日期與計算條件下的參考值；實際能否併網，須經台電個案審查，也受案件順序、上游變電設備等影響。見<a href="#read">讀圖原則</a>。</p>
+  </details>
+  <details class="faq" id="faq-mismatch">
+    <summary>本站數字和台電系統對不上，哪個對？</summary>
+    <p>以台電系統的最新值為準。差異通常來自兩點：台電系統以區段計算、持續更新；本站使用饋線層級的公開檔案，日期標在頁首。</p>
+  </details>
+  <details class="faq" id="faq-hash">
+    <summary>資料來源表裡的「檔案指紋（SHA-256）」是什麼？一般讀者需要看嗎？</summary>
+    <p>不需要。它是每個檔案的唯一識別碼：檔案只要改動一個字，指紋就完全不同。台電每次更新都會覆寫同一個下載網址，所以本站保存每一版原始檔並記下指紋。想確認本站沒有改動台電數字的人，可以從網際網路檔案館或本站存檔下載原始檔，自行計算指紋比對。</p>
+  </details>
+
+  <h2 id="read">3. 讀圖原則</h2>
   <ul class="ne">
     <li>公布可併網容量低 ≠ 無法併網。這是台電在特定日期、計算條件與電網層級下的參考值。</li>
     <li>公布為 0 ≠ 所有新案永久不能併網。實際仍受案件順序、系統衝擊分析、上游變電設備等影響。</li>
@@ -67,10 +112,10 @@
   </ul>
   <p>網站上的標籤：<span class="tag" data-tag="observed">事實</span> 表示台電或官方文件直接記錄的數值；<span class="tag" data-tag="derived">計算</span> 表示本專案依公開方法由原始資料計算而得（如計數、比例、中位數、鄉鎮歸屬）。</p>
 
-  <h2 id="sources">3. 資料來源與存檔</h2>
-  <p>台電每次更新都會覆寫同一個下載網址，所以本站把每一版原始檔存檔，記錄取得時間與 SHA-256。早期版本由網際網路檔案館（Wayback Machine）的保存補回。</p>
+  <h2 id="sources">4. 資料來源與存檔</h2>
+  <p>台電每次更新都會覆寫同一個下載網址，所以本站把每一版原始檔存檔，記錄取得時間與檔案指紋（SHA-256，用來確認檔案沒有被改動，一般讀者可略過；見<a href="#faq-hash">常見問題</a>）。早期版本由網際網路檔案館（Wayback Machine）的保存補回。</p>
   <div class="table-scroll"><table class="data" id="snap-table">
-    <thead><tr><th>存檔版本</th><th>來源</th><th>取得方式</th><th>檔案日期</th><th>日期依據</th><th>SHA-256</th></tr></thead>
+    <thead><tr><th>存檔版本</th><th>來源</th><th>取得方式</th><th>檔案日期</th><th>日期依據</th><th>檔案指紋（SHA-256）</th></tr></thead>
     <tbody></tbody>
   </table></div>
   <h3>S02 檔案結構</h3>
@@ -81,11 +126,11 @@
   <ul id="gap-list"></ul>
   <p>鄰縣饋線的容量只取自<b>同一天</b>的全國檔；沒有同日全國檔的版本不補值。全國檔中曾有同一代號在兩個縣市數值不同的情形，所以只有在各縣數值一致時才採用，不一致就不補。</p>
 
-  <h2 id="classes">4. 分級方式</h2>
+  <h2 id="classes">5. 分級方式</h2>
   <p>本站使用固定級距：<b>0／未滿 1 MW／1–3 MW／3–6 MW／6 MW 以上</b>，另將台電雲林與全國容量表都沒有列出的饋線標為「台電未列容量」（灰色空心圈）。這<b>不是</b>台電 FGIS 的六級分色（FGIS 的級距未以文字公開）。採用固定級距而非分位數，是為了讓不同版本可以用同一把尺比較。顏色：0 用橘色標示為獨立狀態；其餘為單一藍色漸層，越深代表公布容量越高。刻意不用紅色，以免暗示「無法併網」。</p>
   <p id="cap-note"></p>
 
-  <h2 id="crs">5. 座標處理</h2>
+  <h2 id="crs">6. 座標處理</h2>
   <p>台電標示座標為 TWD67。PROJ 對 EPSG:3828 的預設轉換只做概略偏移，沒有基準轉換，會讓所有變壓器位置系統性偏移約 850 公尺。本站以「變壓器必在陸地上」為判準，比較四種轉換：</p>
   <div class="table-scroll"><table class="data" id="crs-table">
     <thead><tr><th>轉換方式</th><th class="num">落在雲林縣界內</th><th class="num">落在陸域外</th><th class="num">陸域外逾 100 m</th><th class="num">與採用方案差距</th></tr></thead>
@@ -93,7 +138,7 @@
   </table></div>
   <p>採用 TWD67 二度分帶加 towgs84 三參數基準轉換；內政部四參數簡易公式的結果與其差距僅數公尺。鄉鎮界線使用內政部國土測繪中心 TWD97 經緯度版本。</p>
 
-  <h2 id="history">6. 歷次公布</h2>
+  <h2 id="history">7. 歷次公布</h2>
   <p>以下各版<b>獨立呈現</b>。饋線代號雖大致穩定，但台電的計算條件是否跨版一致尚未確認，所以本站目前不計算「增加／減少」，也不畫變化箭頭（見下方代號穩定性）。</p>
   <div class="table-scroll"><table class="data" id="hist-table">
     <thead><tr><th>容量表日期</th><th>取得方式</th><th class="num">饋線數</th><th class="num">公布為 0</th><th class="num">比例</th><th class="num">中位數（kW）</th><th>下載</th></tr></thead>
@@ -104,7 +149,7 @@
     <tbody></tbody>
   </table></div>
 
-  <h2 id="limits">7. 已知限制與待確認</h2>
+  <h2 id="limits">8. 已知限制與待確認</h2>
   <ul>
     <li>容量的計算條件、基準日與上限值未公開說明。最新版有多條饋線剛好等於最大值，疑似為上限值，待向台電確認。</li>
     <li>檔案日期取自 ZIP 內檔案修改時間，與台電實際計算基準日的關係未確認。</li>
@@ -115,21 +160,23 @@
     <li>等待併網數字只有區處層級的單一時間點（截至 2025-06-30）；立法院報告表列 7 個區處，未說明其他區處情形。前一年度報告的同類表格口徑不同（含全部再生能源），不可直接比較。</li>
   </ul>
 
-  <h2 id="update">8. 更新方式</h2>
+  <h2 id="update">9. 更新方式</h2>
   <ul>
     <li>每月自動檢查一次台電來源；內容變動（雜湊值不同）才新增存檔版本。頁首的「本站最後檢查來源」是最近一次檢查的日期，不等於資料日期。</li>
     <li>新版出現時重新建置網站，舊版保留在存檔與下載區。</li>
     <li>所有處理程式、存檔與審計報告都在程式庫中，可從原始檔重建本站每個數字。</li>
   </ul>
 
-  <h2 id="license">9. 授權與引用</h2>
+  <h2 id="license">10. 授權、引用與致謝</h2>
   <p>台電與內政部資料依<a href="https://data.gov.tw/license">政府資料開放授權條款－第1版</a>利用並顯名。立法院預算中心報告依其網站資料開放宣告註明出處引用。本站為獨立整理，不代表台電或政府機關立場。</p>
   <p>引用建議：請同時引用原始資料提供者與本站存檔版本（首頁「如何引用」與每條饋線的資訊卡都有可複製的引用文字）。</p>
+  <h3>致謝</h3>
+  <p>在本站之前，kiang（江明宗）自 2016 年起製作<a href="https://kiang.github.io/taipower_feeder/" rel="noopener">台電再生能源可併網容量地圖</a>（<a href="https://github.com/kiang/taipower_feeder" rel="noopener">原始碼</a>，MIT 授權），是公開整理這份資料的先行者，也保存了 2016–2021 年的歷史版本。</p>
 </main>
 
 <footer class="site-foot"><div class="wrap"><p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。<a href="./">回到現況地圖</a></p></div></footer>
 
-<script src="config.js?v=0.1.2"></script>
+<script src="config.js?v=0.1.3"></script>
 <script>
 (async () => {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

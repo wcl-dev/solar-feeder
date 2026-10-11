@@ -37,6 +37,7 @@
  "note": "表2只列 7 個區處（合計 1,500 件、750.44 MW），未說明其他區處為零或未列入，因此不稱為全臺總數。",
  "source_url": "https://www.ly.gov.tw/Pages/ashx/File.ashx?FilePath=~/File/Attach/255076/File_19860273.pdf",
  "page_url": "https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=56112&pid=255076",
+ "snapshot_id": "S04-2025-09-16",
  "archive_sha256": "d3ef550dab29dca609bd4a9362eb1a4ccb4652bc1c8f4caea1fccdda20fb3e30",
  "archive_path": "data/raw/S04/2025-09-16/ly115_budget_eval_s12.pdf",
  "curated_table": "data/curated/S04_queue_by_district_2025-06-30.csv"

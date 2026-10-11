@@ -176,7 +176,7 @@
         <div><div class="v">${fmt(q.over_2y_cases)}<small>件</small></div><div class="l">其中「超過2年以上」（${fmt(q.over_2y_mw, 2)} MW）</div></div>
         <div><div class="v">${(q.share_of_listed_mw * 100).toFixed(2)}<small>%</small></div><div class="l">占表列 ${q.listed_districts} 個區處等待容量${q.rank_by_mw_among_listed === 1 ? "，表列最高" : ""}</div></div>
       </div>
-      <p class="src">截至 ${esc(q.as_of)}。${esc(q.citation)}<a href="${esc(q.page_url)}">原文頁面</a>・<a href="${esc(q.source_url)}">PDF</a>（本站存檔 SHA-256 <code title="${esc(q.archive_sha256)}">${esc(q.archive_sha256.slice(0, 12))}…</code>）。${esc(q.note)}</p>`;
+      <p class="src">截至 ${esc(q.as_of)}。${esc(q.citation)}<a href="${esc(q.page_url)}">原文頁面</a>・<a href="${esc(q.source_url)}">PDF</a>（本站存檔版本 ${esc(q.snapshot_id)}）。${esc(q.note)}</p>`;
   }
 
   function renderTowns(towns) {
@@ -249,11 +249,10 @@
     const national = f && f.capacity_source === "S01";
     const src = national ? S.sources.S01 : S.sources.S02;
     const snap = national ? L.s01_snapshot_id : L.snapshot_id;
-    const sha = national ? L.s01_archive_sha256 : L.archive_sha256;
     const arch = archiveUrl(national ? L.s01_archive_path : L.archive_path);
     return `${src.publisher}（${year}）。${src.title}［資料集；容量表檔案日期 ${L.capacity_date}］。政府資料開放平臺，${src.dataset_page}。` +
       (feederId ? `${national ? `${f.capacity_county}容量表，` : ""}饋線 ${feederName(feederId)}。` : "") +
-      `本站存檔版本 ${snap}，SHA-256 ${sha}${arch ? `，${arch}` : ""}。` +
+      `本站存檔版本 ${snap}${arch ? `，${arch}` : ""}。` +
       (feederId && pageUrl() ? `檢視頁面：${pageUrl()}#feeder=${encodeURIComponent(feederId)}。` : "") +
       `取用日期 ${today()}。`;
   }
@@ -282,7 +281,7 @@
     const flags = (f.flags ? f.flags.split(";") : []).filter((x) => !explained.has(x));
     const national = f.capacity_source === "S01";
     const arch = archiveUrl(national ? L.s01_archive_path : L.archive_path);
-    const sha = national ? L.s01_archive_sha256 : L.archive_sha256;
+    const snap = national ? L.s01_snapshot_id : L.snapshot_id;
     const callout = f.feeder === CODE_NONE
       ? `<b>這些變壓器沒有標所屬饋線。</b>台電變壓器位置表中，它們的「所屬饋線」欄位寫「無」，所以無法對應到任何容量。`
       : f.capacity_kw == null
@@ -318,7 +317,7 @@
       <ul class="links">
         <li><a href="https://service.taipower.com.tw/hcweb/geohc/" target="_blank" rel="noopener">到台電 FGIS 查最新官方值 ↗</a></li>
         <li><a href="${csvPath()}" download="yunlin_feeders_${esc(L.capacity_date)}.csv">下載本版饋線表（CSV）</a></li>
-        <li>原始檔存檔 SHA-256：<code title="${esc(sha)}">${esc(sha.slice(0, 16))}…</code>${arch ? `（<a href="${esc(arch)}">檔案</a>）` : ""}</li>
+        <li>原始檔存檔：${esc(snap)}${arch ? `（<a href="${esc(arch)}">檔案</a>）` : ""}</li>
       </ul>`;
   }
 

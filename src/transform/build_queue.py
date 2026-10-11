@@ -58,6 +58,7 @@ def main() -> None:
         ),
         "source_url": snap["source_url"],
         "page_url": snap["dataset_page"],
+        "snapshot_id": snap["snapshot_id"],
         "archive_sha256": snap["sha256"],
         "archive_path": snap["archive_path"],
         "curated_table": str(CURATED.relative_to(ROOT)),
