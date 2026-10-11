@@ -1,7 +1,7 @@
 {
  "method_version": "0.1.0",
- "built_on": "2026-10-11",
- "source_last_checked": "2026-10-11T06:44:58Z",
+ "built_on": "2026-10-12",
+ "source_last_checked": "2026-10-11T17:29:17Z",
  "scope": "雲林縣・配電饋線（distribution）",
  "grid_level": "distribution",
  "license": {
@@ -166,7 +166,11 @@
      "4": 910,
      "-1": 1428
     }
-   }
+   },
+   "no_capacity_listed_in_previous": [
+    "XU27",
+    "XU29"
+   ]
   }
  },
  "feeders": [
@@ -5476,7 +5480,11 @@
       "4": 910,
       "-1": 1428
      }
-    }
+    },
+    "no_capacity_listed_in_previous": [
+     "XU27",
+     "XU29"
+    ]
    }
   }
  ],

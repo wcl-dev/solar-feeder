@@ -1,38 +1,60 @@
-"""Archive source ZIPs: Taipower hosting capacity (S01 national, S02 Yunlin)
-and MOI township boundaries (S12).
+"""Check sources and archive new versions.
 
-Taipower overwrites the same URL on every update, so each distinct file is
-kept under data/raw/<source_id>/<file_date>/ and recorded in
-data/manifests/snapshots.csv. Wayback Machine captures backfill older versions.
+Taipower overwrites the same URL on every update (S01 national, S02 Yunlin), so
+each distinct file is kept under data/raw/<source_id>/<file_date>/ and recorded
+in data/manifests/snapshots.csv. A missed version is lost for good, so these are
+checked on every run with conditional requests (ETag / Last-Modified): an
+unchanged file costs one 304 response and no download.
+
+Archiving is not publishing: a new snapshot only reaches the site once it is
+listed in data/manifests/published.json (see src/ingest/approve.py).
 
 The CSVs carry no content date. `file_date` is the newest modification time of
 the members inside the ZIP — the best available proxy, labelled as such.
+
+Usage:
+  uv run python src/ingest/fetch_snapshots.py            # scheduled check
+  uv run python src/ingest/fetch_snapshots.py --force    # ignore schedules and conditional requests
+  uv run python src/ingest/fetch_snapshots.py --no-wayback-save
+New Taipower snapshots are printed as "NEW SNAPSHOT <id>" and, under GitHub
+Actions, written to $GITHUB_OUTPUT as new_snapshots=<id,id>.
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import io
+import json
+import os
 import ssl
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
-MANIFEST = ROOT / "data" / "manifests" / "snapshots.csv"
-CHECKS = ROOT / "data" / "manifests" / "checks.csv"  # one row per live check, changed or not
+MANIFESTS = ROOT / "data" / "manifests"
+MANIFEST = MANIFESTS / "snapshots.csv"
+CHECKS = MANIFESTS / "checks.csv"  # one row per check, changed or not
+HTTP_STATE = MANIFESTS / "http_state.json"  # last ETag / Last-Modified per source
+WAYBACK_SAVES = MANIFESTS / "wayback_saves.csv"
+USER_AGENT = "solar-grid-observatory/0.1 (research archive)"
 
 BASE = "https://service.taipower.com.tw/data/opendata/apply/file/d077009/"
 SOURCES = {
-    "S01": {"url": BASE + "001.zip", "file": "001.zip", "dataset": "https://data.gov.tw/dataset/161874"},
-    "S02": {"url": BASE + "YUNLIN.zip", "file": "YUNLIN.zip", "dataset": "https://data.gov.tw/dataset/44208"},
+    # mode "archive": fetch the fixed URL on every run and archive new content.
+    "S01": {"mode": "archive", "url": BASE + "001.zip", "file": "001.zip", "dataset": "https://data.gov.tw/dataset/161874"},
+    "S02": {"mode": "archive", "url": BASE + "YUNLIN.zip", "file": "YUNLIN.zip", "dataset": "https://data.gov.tw/dataset/44208"},
+    # mode "manual": a new release is a new report at a new URL; curated by hand (data/curated/).
     "S04": {
+        "mode": "manual",
         "url": "https://www.ly.gov.tw/Pages/ashx/File.ashx?FilePath=~/File/Attach/255076/File_19860273.pdf",
         "file": "ly115_budget_eval_s12.pdf",
         "dataset": "https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=56112&pid=255076",
@@ -40,14 +62,19 @@ SOURCES = {
         "file_date": "2025-09-16",
         "file_date_basis": "pdf_creation_date",
     },
+    # mode "watch": the download URL carries the release date, so a new release is a new URL.
+    # Every `every_days`, compare the URL listed on data.gov.tw and report a change for manual handling.
     "S12": {
+        "mode": "watch",
+        "every_days": 90,
+        "api": "https://data.gov.tw/api/v2/rest/dataset/7441",
         "url": "https://www.tgos.tw/tgos/VirtualDir/Product/3fe61d4a-ca23-4f45-8aca-4a536f40f290/"
         + urllib.parse.quote("鄉(鎮、市、區)界線1140318.zip"),
         "file": "township_1140318.zip",
         "dataset": "https://data.gov.tw/dataset/7441",
     },
 }
-# Wayback captures with distinct digests (CDX query, collapse=digest).
+# Wayback captures with distinct digests (CDX query, collapse=digest); fetched once.
 WAYBACK = {
     "S01": ["20250424125909"],
     "S02": ["20241116125219", "20250424135946"],
@@ -58,16 +85,27 @@ FIELDS = [
     "retrieved_at", "http_last_modified", "wayback_timestamp", "file_date",
     "file_date_basis", "members", "sha256", "bytes", "archive_path",
 ]
+CHECK_FIELDS = ["checked_at", "source_id", "result", "sha256", "snapshot_id"]
+# result: not_modified (304) | unchanged (downloaded, same hash) | new | url_same | url_changed | error
 
 
-def fetch(url: str) -> tuple[bytes, str]:
+def now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def http_get(url: str, headers: dict | None = None, timeout: int = 120) -> tuple[int, bytes, dict]:
     # Taipower's certificate lacks a Subject Key Identifier, which Python 3.13+
     # rejects under VERIFY_X509_STRICT. Chain and hostname are still verified.
     ctx = ssl.create_default_context()
     ctx.verify_flags &= ~ssl.VERIFY_X509_STRICT
-    req = urllib.request.Request(url, headers={"User-Agent": "solar-grid-observatory/0.1 (research archive)"})
-    with urllib.request.urlopen(req, timeout=120, context=ctx) as r:
-        return r.read(), r.headers.get("Last-Modified", "")
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
+            return r.status, r.read(), dict(r.headers)
+    except urllib.error.HTTPError as e:
+        if e.code == 304:
+            return 304, b"", dict(e.headers)
+        raise
 
 
 def zip_members(blob: bytes) -> list[tuple[str, str]]:
@@ -75,16 +113,24 @@ def zip_members(blob: bytes) -> list[tuple[str, str]]:
         return [(i.filename, datetime(*i.date_time).strftime("%Y-%m-%d")) for i in z.infolist()]
 
 
-def load_manifest() -> list[dict]:
-    if not MANIFEST.exists():
+def read_csv(path: Path) -> list[dict]:
+    if not path.exists():
         return []
-    with MANIFEST.open(encoding="utf-8") as f:
+    with path.open(encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
-def archive(source_id: str, origin: str, fetch_url: str, wayback_ts: str = "") -> dict | None:
+def write_csv(path: Path, fields: list[str], rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
+
+
+def store(source_id: str, origin: str, fetch_url: str, blob: bytes, headers: dict, wayback_ts: str = "") -> dict:
+    """Write blob to data/raw (read-only, never overwritten) and return its manifest row."""
     src = SOURCES[source_id]
-    blob, last_mod = fetch(fetch_url)
     sha = hashlib.sha256(blob).hexdigest()
     if "file_date" in src:
         members, file_date = [], src["file_date"]
@@ -103,6 +149,7 @@ def archive(source_id: str, origin: str, fetch_url: str, wayback_ts: str = "") -
         path.write_bytes(blob)
         path.chmod(0o444)
 
+    last_mod = headers.get("Last-Modified", "")
     return {
         "snapshot_id": f"{source_id}-{file_date}",
         "source_id": source_id,
@@ -110,7 +157,7 @@ def archive(source_id: str, origin: str, fetch_url: str, wayback_ts: str = "") -
         "source_url": src["url"],
         "fetch_url": fetch_url,
         "dataset_page": src["dataset"],
-        "retrieved_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "retrieved_at": now(),
         "http_last_modified": parsedate_to_datetime(last_mod).strftime("%Y-%m-%dT%H:%M:%SZ") if last_mod else "",
         "wayback_timestamp": wayback_ts,
         "file_date": file_date,
@@ -122,37 +169,122 @@ def archive(source_id: str, origin: str, fetch_url: str, wayback_ts: str = "") -
     }
 
 
+def wayback_save(url: str) -> dict:
+    """Ask the Internet Archive to capture url (an independent copy). Best effort."""
+    rec = {"requested_at": now(), "url": url, "status": "", "capture": ""}
+    try:
+        status, _, headers = http_get("https://web.archive.org/save/" + url, timeout=180)
+        rec["status"] = str(status)
+        rec["capture"] = headers.get("Content-Location", "")
+        if not rec["capture"]:  # look the new capture up in the CDX index instead
+            _, body, _ = http_get("https://web.archive.org/cdx/search/cdx?output=json&fl=timestamp&limit=-1&url="
+                                  + urllib.parse.quote(url, safe=""), timeout=60)
+            found = json.loads(body or b"[]")
+            rec["capture"] = f"/web/{found[-1][0]}/{url}" if len(found) > 1 else ""
+    except Exception as e:  # never fail the archive run because of Wayback
+        rec["status"] = f"error: {type(e).__name__}: {e}"[:200]
+    return rec
+
+
+def last_check(checks: list[dict], source_id: str) -> datetime | None:
+    times = [r["checked_at"] for r in checks if r["source_id"] == source_id and r.get("result") != "error"]
+    return datetime.strptime(max(times), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) if times else None
+
+
 def main() -> None:
-    rows = {r["sha256"]: r for r in load_manifest()}
-    jobs = [(sid, "publisher_live", s["url"], "") for sid, s in SOURCES.items()]
-    jobs += [
-        (sid, "wayback", f"https://web.archive.org/web/{ts}id_/{SOURCES[sid]['url']}", ts)
-        for sid, stamps in WAYBACK.items() for ts in stamps
-    ]
-    checks = []
-    for sid, origin, url, ts in jobs:
-        rec = archive(sid, origin, url, ts)
-        if origin == "publisher_live":
-            checks.append({"checked_at": rec["retrieved_at"], "source_id": sid, "sha256": rec["sha256"],
-                           "changed": rec["sha256"] not in rows, "snapshot_id": rec["snapshot_id"]})
-        if rec["sha256"] in rows:
-            print(f"unchanged {rec['snapshot_id']} ({origin})")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true", help="ignore schedules and conditional requests")
+    ap.add_argument("--no-wayback-save", action="store_true", help="do not ask Wayback to capture new versions")
+    args = ap.parse_args()
+
+    manifest = {r["sha256"]: r for r in read_csv(MANIFEST)}
+    checks = read_csv(CHECKS)
+    for r in checks:  # rows written before the `result` column existed
+        if "result" not in r or not r["result"]:
+            r["result"] = "new" if r.pop("changed", "") == "True" else "unchanged"
+    state = json.loads(HTTP_STATE.read_text()) if HTTP_STATE.exists() else {}
+    saves = read_csv(WAYBACK_SAVES)
+    new_snapshots, notices = [], []
+
+    for sid, src in SOURCES.items():
+        if src["mode"] == "manual":
             continue
-        rows[rec["sha256"]] = rec
-        print(f"archived  {rec['snapshot_id']} ({origin}) {rec['bytes']:,} B sha256={rec['sha256'][:12]}")
+        if src["mode"] == "watch":
+            last = last_check(checks, sid)
+            if not args.force and last and datetime.now(timezone.utc) - last < timedelta(days=src["every_days"]):
+                print(f"skip      {sid} (checked {last:%Y-%m-%d}; every {src['every_days']} days)")
+                continue
+            try:
+                _, body, _ = http_get(src["api"])
+                meta = json.loads(body)["result"]
+                listed = [d.get("resourceDownloadUrl", "") for d in meta.get("distribution", [])]
+                same = any(urllib.parse.unquote(u) == urllib.parse.unquote(src["url"]) for u in listed)
+                result = "url_same" if same else "url_changed"
+                if not same:
+                    notices.append(f"NEW RELEASE {sid}: data.gov.tw now lists {listed} — archive manually")
+            except Exception as e:
+                result = f"error"
+                notices.append(f"CHECK FAILED {sid}: {type(e).__name__}: {e}")
+            checks.append({"checked_at": now(), "source_id": sid, "result": result, "sha256": "", "snapshot_id": ""})
+            print(f"{result:9s} {sid}")
+            continue
 
-    MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    with MANIFEST.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS)
-        w.writeheader()
-        w.writerows(sorted(rows.values(), key=lambda r: (r["source_id"], r["file_date"])))
+        # mode "archive"
+        cond = {} if args.force else {
+            k: v for k, v in (("If-None-Match", state.get(sid, {}).get("etag")),
+                              ("If-Modified-Since", state.get(sid, {}).get("last_modified"))) if v
+        }
+        try:
+            status, blob, headers = http_get(src["url"], cond)
+        except Exception as e:
+            checks.append({"checked_at": now(), "source_id": sid, "result": "error", "sha256": "", "snapshot_id": ""})
+            notices.append(f"CHECK FAILED {sid}: {type(e).__name__}: {e}")
+            continue
+        if status == 304:
+            prev = state[sid]
+            checks.append({"checked_at": now(), "source_id": sid, "result": "not_modified",
+                           "sha256": prev["sha256"], "snapshot_id": prev["snapshot_id"]})
+            print(f"not modified {prev['snapshot_id']} (304)")
+            continue
+        rec = store(sid, "publisher_live", src["url"], blob, headers)
+        is_new = rec["sha256"] not in manifest
+        if is_new:
+            manifest[rec["sha256"]] = rec
+            new_snapshots.append(rec["snapshot_id"])
+            print(f"NEW SNAPSHOT {rec['snapshot_id']} {rec['bytes']:,} B sha256={rec['sha256'][:12]}")
+            if not args.no_wayback_save:
+                saves.append({**wayback_save(src["url"]), "source_id": sid, "snapshot_id": rec["snapshot_id"]})
+        else:
+            print(f"unchanged {manifest[rec['sha256']]['snapshot_id']}")
+        checks.append({"checked_at": rec["retrieved_at"], "source_id": sid, "result": "new" if is_new else "unchanged",
+                       "sha256": rec["sha256"], "snapshot_id": manifest[rec["sha256"]]["snapshot_id"]})
+        state[sid] = {"etag": headers.get("ETag", ""), "last_modified": headers.get("Last-Modified", ""),
+                      "sha256": rec["sha256"], "snapshot_id": manifest[rec["sha256"]]["snapshot_id"]}
 
-    new_log = not CHECKS.exists()
-    with CHECKS.open("a", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["checked_at", "source_id", "sha256", "changed", "snapshot_id"])
-        if new_log:
-            w.writeheader()
-        w.writerows(checks)
+    # Backfill from Wayback, once per capture.
+    have = {(r["source_id"], r["wayback_timestamp"]) for r in manifest.values()}
+    for sid, stamps in WAYBACK.items():
+        for ts in stamps:
+            if (sid, ts) in have and not args.force:
+                continue
+            url = f"https://web.archive.org/web/{ts}id_/{SOURCES[sid]['url']}"
+            _, blob, headers = http_get(url)
+            rec = store(sid, "wayback", url, blob, headers, ts)
+            if rec["sha256"] not in manifest:
+                manifest[rec["sha256"]] = rec
+                print(f"archived  {rec['snapshot_id']} (wayback {ts})")
+
+    write_csv(MANIFEST, FIELDS, sorted(manifest.values(), key=lambda r: (r["source_id"], r["file_date"])))
+    write_csv(CHECKS, CHECK_FIELDS, checks)
+    HTTP_STATE.write_text(json.dumps(state, ensure_ascii=False, indent=1) + "\n")
+    if saves:
+        write_csv(WAYBACK_SAVES, ["requested_at", "source_id", "snapshot_id", "url", "status", "capture"], saves)
+
+    for n in notices:
+        print(n)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write(f"new_snapshots={','.join(new_snapshots)}\n")
 
 
 if __name__ == "__main__":

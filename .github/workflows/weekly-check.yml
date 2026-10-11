@@ -1,0 +1,83 @@
+name: Weekly source check
+
+# Taipower overwrites the same URL on every update, so a missed version is lost.
+# Check weekly (conditional requests: an unchanged file costs one 304), archive
+# new versions on main immediately, and open a review PR before they go live.
+on:
+  schedule:
+    - cron: "0 1 * * 1"   # Mondays 09:00 Asia/Taipei
+    - cron: "0 1 15 9 *"  # Sep 15: reminder for the new LY budget evaluation report
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: source-check
+  cancel-in-progress: false
+
+jobs:
+  ly-reminder:
+    if: github.event.schedule == '0 1 15 9 *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open reminder issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" \
+            --title "檢查立法院預算中心新年度總預算案整體評估報告" \
+            --body "每年 9 月立法院預算中心會發布新年度的總預算案整體評估報告。請確認是否有新的「太陽光電等候併網」區處統計表；若有，依 data/curated/README.md 的方式人工擷取、核對，並更新 S04。注意前後年度口徑可能不同（例：114 年度為全部再生能源、11 個區處）。"
+
+  check:
+    if: github.event.schedule != '0 1 15 9 *'
+    runs-on: ubuntu-latest
+    outputs:
+      new_snapshots: ${{ steps.fetch.outputs.new_snapshots }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - id: fetch
+        run: uv run python src/ingest/fetch_snapshots.py
+      - name: Rebuild site data from approved snapshots only
+        run: |
+          uv run python src/transform/build_yunlin.py
+          uv run python src/transform/build_queue.py
+      - name: Commit check log and any new raw archive to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data web docs
+          if ! git diff --cached --quiet; then
+            git commit -m "Source check $(date -u +%Y-%m-%d)"
+            git push
+          fi
+      - name: Open a review PR for new snapshots
+        if: steps.fetch.outputs.new_snapshots != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_SNAPSHOTS: ${{ steps.fetch.outputs.new_snapshots }}
+        run: |
+          ids="${NEW_SNAPSHOTS//,/ }"
+          branch="data/${NEW_SNAPSHOTS//,/_}"
+          uv run python src/report/summarize_change.py > "$RUNNER_TEMP/pr_body.md"
+          git switch -c "$branch"
+          uv run python src/ingest/approve.py $ids
+          uv run python src/transform/build_yunlin.py
+          uv run python src/transform/build_queue.py
+          git add data web docs
+          git commit -m "Publish $NEW_SNAPSHOTS"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "新版資料待審：$NEW_SNAPSHOTS" --body-file "$RUNNER_TEMP/pr_body.md"
+
+  deploy:
+    needs: check
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml

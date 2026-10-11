@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>方法與資料｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="資料來源、存檔版本、座標處理、分級方式與限制說明。">
-<link rel="stylesheet" href="style.css?v=0.1.3">
+<link rel="stylesheet" href="style.css?v=0.1.4">
 <style>
   .doc { max-width: 860px; }
   .doc h2 { font-size: 19px; margin: 36px 0 8px; padding-top: 4px; }
@@ -77,7 +77,7 @@
     <summary>和 kiang 的「台電再生能源可併網容量地圖」差在哪？</summary>
     <p><a href="https://kiang.github.io/taipower_feeder/" rel="noopener">kiang 的地圖</a>自 2016 年起整理台電公開資料，是這個題目的先行者，使用與本站同一種台電資料，涵蓋全國 17 個縣市，並有村里界圖層。主要差異：</p>
     <ul>
-      <li><b>資料新舊：</b>該站資料最後更新於 2021 年 9 月；本站使用最新公開版本，並每月檢查是否有新版。</li>
+      <li><b>資料新舊：</b>該站資料最後更新於 2021 年 9 月；本站使用最新公開版本，並每週檢查是否有新版。</li>
       <li><b>呈現：</b>該站以同一顏色顯示變壓器，點選後看容量；本站依公布容量分級上色。</li>
       <li><b>未公布容量的饋線：</b>兩站處理方式不同。本站把「公布為 0」與「台電未列容量」分開，並為鄰縣饋線補上同日全國檔的數值，所以兩站「0」的數量可能不一致。</li>
       <li><b>版本與引用：</b>本站每一版都存檔並標日期，可下載與引用。</li>
@@ -162,9 +162,11 @@
 
   <h2 id="update">9. 更新方式</h2>
   <ul>
-    <li>每月自動檢查一次台電來源；內容變動（雜湊值不同）才新增存檔版本。頁首的「本站最後檢查來源」是最近一次檢查的日期，不等於資料日期。</li>
-    <li>新版出現時重新建置網站，舊版保留在存檔與下載區。</li>
-    <li>所有處理程式、存檔與審計報告都在程式庫中，可從原始檔重建本站每個數字。</li>
+    <li><b>台電可併網容量：每週自動檢查。</b>台電更新時會覆寫同一網址，漏掉一版就找不回來，所以檢查得比台電宣稱的半年週期密。檢查時先詢問檔案是否變動，沒變就不下載。</li>
+    <li><b>發現新版：</b>原始檔立即存檔，並請網際網路檔案館另存一份獨立副本；網站資料經人工審核後才更新，審核期間網站維持上一版。</li>
+    <li><b>鄉鎮界線：</b>每季檢查是否有新版。<b>立法院等待併網數字：</b>每年 9 月人工檢查新年度報告。</li>
+    <li>頁首的「本站最後檢查來源」是最近一次成功檢查的日期，不等於資料日期。超過 45 天沒有成功檢查，頁首會顯示提醒。</li>
+    <li>舊版保留在存檔與下載區。所有處理程式、存檔與審計報告都在程式庫中，可從原始檔重建本站每個數字。</li>
   </ul>
 
   <h2 id="license">10. 授權、引用與致謝</h2>
@@ -176,7 +178,7 @@
 
 <footer class="site-foot"><div class="wrap"><p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。<a href="./">回到現況地圖</a></p></div></footer>
 
-<script src="config.js?v=0.1.3"></script>
+<script src="config.js?v=0.1.4"></script>
 <script>
 (async () => {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

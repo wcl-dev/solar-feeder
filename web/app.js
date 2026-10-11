@@ -91,8 +91,15 @@
     bindCopy();
   }
 
+  const STALE_AFTER_DAYS = 45; // sources are checked weekly; this much silence means the automation stopped
+
   function renderHeader() {
     const checked = (S.source_last_checked || "").slice(0, 10);
+    const days = Math.floor((Date.now() - Date.parse(S.source_last_checked)) / 86400000);
+    if (days > STALE_AFTER_DAYS) {
+      $(".site-head .wrap").insertAdjacentHTML("beforeend",
+        `<p class="map-warn stale" role="status">本站已 ${days} 天沒有檢查台電來源（正常為每週一次），台電可能已發布新版，這裡的資料未必是最新的。</p>`);
+    }
     $("#dates").innerHTML =
       `台電容量表日期 <b>${esc(L.capacity_date)}</b>（依台電 ZIP 內檔案日期）・本站最後檢查來源 <b>${esc(checked)}</b>・方法版本 ${esc(S.method_version)}`;
   }

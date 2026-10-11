@@ -31,6 +31,7 @@ METHOD_VERSION = "0.1.0"
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "data" / "manifests" / "snapshots.csv"
 CHECKS = ROOT / "data" / "manifests" / "checks.csv"
+PUBLISHED = ROOT / "data" / "manifests" / "published.json"
 WEB = ROOT / "web" / "data"
 AUDIT = ROOT / "docs" / "audit" / "S02_capacity_audit.md"
 
@@ -328,6 +329,9 @@ def feeder_stability(snaps: list[dict]) -> list[dict]:
 
 def main() -> None:
     manifest = pd.read_csv(MANIFEST, dtype=str)
+    # Only reviewed snapshots are published; newer archived ones wait in the manifest.
+    approved = set(json.loads(PUBLISHED.read_text(encoding="utf-8"))["approved"])
+    manifest = manifest[manifest.snapshot_id.isin(approved)]
     towns, land, towns_meta = load_townships(manifest)
     s02 = manifest[manifest.source_id == "S02"].sort_values("file_date")
     towns_meta["s02_page"] = s02.iloc[-1].dataset_page
@@ -345,6 +349,10 @@ def main() -> None:
 
     snaps = [build_snapshot(r, towns, crs, same_day_s01(r)) for _, r in s02.iterrows()]
     latest = snaps[-1]
+    if len(snaps) > 1:
+        prev_listed = {f["feeder"] for f in snaps[-2]["feeders"] if f["capacity_source"] == "S02"}
+        latest["stats"]["no_capacity_listed_in_previous"] = sorted(
+            f["feeder"] for f in latest["feeders"] if "no_capacity_row" in f["flags"] and f["feeder"] in prev_listed)
     checks = cross_check(manifest)
     stability = feeder_stability(snaps)
 
@@ -363,7 +371,8 @@ def main() -> None:
         return {k: v for k, v in s.items() if k not in ("feeders", "_points")}
 
     check_log = pd.read_csv(CHECKS, dtype=str)
-    last_checked = check_log[check_log.source_id == "S02"].checked_at.max()
+    ok = check_log.result != "error" if "result" in check_log else True
+    last_checked = check_log[(check_log.source_id == "S02") & ok].checked_at.max()
     summary = {
         "method_version": METHOD_VERSION,
         "built_on": date.today().isoformat(),
@@ -446,7 +455,9 @@ def write_audit(s: dict) -> None:
         f"- 點位表有、雲林容量表沒有的變壓器共 {st['points_without_capacity_feeder']:,} 個，分三種：",
         f"  - 鄰縣饋線 {st['feeders_other_county']} 條（{st['points_other_county']:,} 個點）：容量見同日全國檔（S01）其他縣市容量表，本站取用並標示來源。"
         if L["s01_snapshot_id"] else "  - 鄰縣饋線：本版無同日全國檔，未補值。",
-        f"  - 雲林代號但兩表皆無 {st['feeders_no_capacity_row']} 條（{st['points_no_capacity_row']:,} 個點）：標為「{NO_CAPACITY_LABEL}」，成因待確認。",
+        f"  - 雲林代號但兩表皆無 {st['feeders_no_capacity_row']} 條（{st['points_no_capacity_row']:,} 個點）：標為「{NO_CAPACITY_LABEL}」，成因待確認。"
+        + (f"其中 {len(st['no_capacity_listed_in_previous'])} 條（{'、'.join(st['no_capacity_listed_in_previous'])}）在前一版容量表中仍有數值，這一版才從容量表消失。"
+           if st.get("no_capacity_listed_in_previous") else ""),
         f"  - 所屬饋線欄位為「{FEEDER_CODE_NONE}」：{st['points_feeder_code_none']} 個點。",
         f"  - 代號在多個鄰縣容量表出現且數值不同、因此不補值：{st['feeders_ambiguous_other_county']} 條。",
         (f"- 同日全國檔中，同一饋線代號在多個縣市容量表出現且數值不同者：{st['national_codes_conflicting']} 個"
