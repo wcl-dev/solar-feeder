@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>方法與資料｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="資料來源、存檔版本、座標處理、分級方式與限制說明。">
-<link rel="stylesheet" href="style.css?v=0.1.6">
+<link rel="stylesheet" href="style.css?v=0.1.7">
 <style>
   .doc { max-width: 860px; }
   .doc h2 { font-size: 19px; margin: 36px 0 8px; padding-top: 4px; }
@@ -162,7 +162,7 @@
 
   <h2 id="update">9. 更新方式</h2>
   <ul>
-    <li><b>台電可併網容量：每週自動檢查。</b>台電更新時會覆寫同一網址，漏掉一版就找不回來，所以檢查得比台電宣稱的半年週期密。檢查時先詢問檔案是否變動，沒變就不下載。</li>
+    <li><b>台電可併網容量：每週自動檢查。</b>台電更新時會覆寫同一網址，漏掉一版就找不回來，所以檢查得比台電宣稱的半年週期密。檢查時先詢問檔案是否變動，沒變就不下載。若無法直接連上台電（自動檢查的雲端主機偶爾會被擋），改請網際網路檔案館抓取最新檔案後比對，並在檢查紀錄註明「經由 Wayback」。</li>
     <li><b>發現新版：</b>原始檔立即存檔，並請網際網路檔案館另存一份獨立副本；網站資料經人工審核後才更新，審核期間網站維持上一版。</li>
     <li><b>鄉鎮界線：</b>每季檢查是否有新版。<b>立法院等待併網數字：</b>每年 9 月人工檢查新年度報告。</li>
     <li>頁首的「本站最後檢查來源」是最近一次成功檢查的日期，不等於資料日期。超過 45 天沒有成功檢查，頁首會顯示提醒。</li>
@@ -178,7 +178,7 @@
 
 <footer class="site-foot"><div class="wrap"><p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。<a href="./">回到現況地圖</a></p></div></footer>
 
-<script src="config.js?v=0.1.6"></script>
+<script src="config.js?v=0.1.7"></script>
 <script>
 (async () => {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

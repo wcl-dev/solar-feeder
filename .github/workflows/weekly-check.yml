@@ -8,6 +8,11 @@ on:
     - cron: "0 1 * * 1"   # Mondays 09:00 Asia/Taipei
     - cron: "0 1 15 9 *"  # Sep 15: reminder for the new LY budget evaluation report
   workflow_dispatch:
+    inputs:
+      via_wayback:
+        description: "Skip the direct request and check through Wayback (tests the relay used when Taipower is unreachable)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -41,7 +46,14 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
       - id: fetch
-        run: uv run python src/ingest/fetch_snapshots.py
+        env:
+          VIA_WAYBACK: ${{ inputs.via_wayback }}
+        run: |
+          if [ "$VIA_WAYBACK" = "true" ]; then
+            uv run python src/ingest/fetch_snapshots.py --via-wayback
+          else
+            uv run python src/ingest/fetch_snapshots.py
+          fi
       - name: Rebuild site data from approved snapshots only
         run: |
           uv run python src/transform/build_yunlin.py

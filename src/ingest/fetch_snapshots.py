@@ -17,6 +17,11 @@ Usage:
   uv run python src/ingest/fetch_snapshots.py --force    # ignore schedules and conditional requests
   uv run python src/ingest/fetch_snapshots.py --no-wayback-save
   uv run python src/ingest/fetch_snapshots.py --archive-manual   # also archive manual sources not yet in the archive
+  uv run python src/ingest/fetch_snapshots.py --via-wayback      # test the Wayback relay used when Taipower is unreachable
+
+Taipower sometimes does not answer GitHub's cloud runners (TLS handshake timeouts,
+seen 2026-10-11). A direct check is retried once; if it still fails, the file is
+checked through a fresh Wayback Machine capture instead ("via=wayback").
 New Taipower snapshots are printed as "NEW SNAPSHOT <id>" and, under GitHub
 Actions, written to $GITHUB_OUTPUT as new_snapshots=<id,id>.
 """
@@ -29,7 +34,9 @@ import hashlib
 import io
 import json
 import os
+import re
 import ssl
+import time
 import sys
 import urllib.error
 import urllib.parse
@@ -95,7 +102,7 @@ FIELDS = [
     "retrieved_at", "http_last_modified", "wayback_timestamp", "file_date",
     "file_date_basis", "members", "sha256", "bytes", "archive_path",
 ]
-CHECK_FIELDS = ["checked_at", "source_id", "result", "sha256", "snapshot_id"]
+CHECK_FIELDS = ["checked_at", "source_id", "result", "sha256", "snapshot_id", "via"]
 # result: not_modified (304) | unchanged (downloaded, same hash) | new | url_same | url_changed | error
 
 
@@ -116,6 +123,32 @@ def http_get(url: str, headers: dict | None = None, timeout: int = 120) -> tuple
         if e.code == 304:
             return 304, b"", dict(e.headers)
         raise
+
+
+def http_get_retry(url: str, headers: dict | None = None, attempts: int = 2, timeout: int = 45) -> tuple[int, bytes, dict]:
+    for i in range(attempts):
+        try:
+            return http_get(url, headers, timeout=timeout)
+        except (urllib.error.URLError, TimeoutError, OSError):
+            if i == attempts - 1:
+                raise
+            time.sleep(10)
+    raise AssertionError("unreachable")
+
+
+def via_wayback(url: str) -> tuple[bytes, dict, str, dict]:
+    """Have Wayback capture url now, then download that capture. Returns (blob, headers, timestamp, save record)."""
+    save = wayback_save(url)
+    m = re.search(r"/web/(\d{14})", save["capture"])
+    if not m:
+        raise RuntimeError(f"Wayback relay: no capture ({save['status']})")
+    ts = m.group(1)
+    age = datetime.now(timezone.utc) - datetime.strptime(ts, "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+    if age > timedelta(days=1):
+        raise RuntimeError(f"Wayback relay: newest capture {ts} is not fresh")
+    _, blob, headers = http_get(f"https://web.archive.org/web/{ts}id_/{url}", timeout=180)
+    headers = {**headers, "Last-Modified": headers.get("x-archive-orig-last-modified", "")}
+    return blob, headers, ts, save
 
 
 def zip_members(blob: bytes) -> list[tuple[str, str]]:
@@ -206,6 +239,7 @@ def main() -> None:
     ap.add_argument("--force", action="store_true", help="ignore schedules and conditional requests")
     ap.add_argument("--no-wayback-save", action="store_true", help="do not ask Wayback to capture new versions")
     ap.add_argument("--archive-manual", action="store_true", help="archive manual sources that are not archived yet")
+    ap.add_argument("--via-wayback", action="store_true", help="skip the direct request and check through Wayback (test the relay)")
     args = ap.parse_args()
 
     manifest = {r["sha256"]: r for r in read_csv(MANIFEST)}
@@ -241,7 +275,7 @@ def main() -> None:
             except Exception as e:
                 result = f"error"
                 notices.append(f"CHECK FAILED {sid}: {type(e).__name__}: {e}")
-            checks.append({"checked_at": now(), "source_id": sid, "result": result, "sha256": "", "snapshot_id": ""})
+            checks.append({"checked_at": now(), "source_id": sid, "result": result, "sha256": "", "snapshot_id": "", "via": "direct"})
             print(f"{result:9s} {sid}")
             continue
 
@@ -250,32 +284,46 @@ def main() -> None:
             k: v for k, v in (("If-None-Match", state.get(sid, {}).get("etag")),
                               ("If-Modified-Since", state.get(sid, {}).get("last_modified"))) if v
         }
+        via, relay_ts, relay_save = "direct", "", None
         try:
-            status, blob, headers = http_get(src["url"], cond)
+            if args.via_wayback:
+                raise RuntimeError("--via-wayback")
+            status, blob, headers = http_get_retry(src["url"], cond)
         except Exception as e:
-            checks.append({"checked_at": now(), "source_id": sid, "result": "error", "sha256": "", "snapshot_id": ""})
-            notices.append(f"CHECK FAILED {sid}: {type(e).__name__}: {e}")
-            continue
+            if not args.via_wayback:
+                notices.append(f"DIRECT FAILED {sid}: {type(e).__name__}: {e} — trying Wayback relay")
+            try:
+                blob, headers, relay_ts, relay_save = via_wayback(src["url"])
+                status, via = 200, "wayback"
+            except Exception as e2:
+                checks.append({"checked_at": now(), "source_id": sid, "result": "error", "sha256": "", "snapshot_id": "", "via": ""})
+                notices.append(f"CHECK FAILED {sid}: {type(e2).__name__}: {e2}")
+                continue
         if status == 304:
             prev = state[sid]
             checks.append({"checked_at": now(), "source_id": sid, "result": "not_modified",
-                           "sha256": prev["sha256"], "snapshot_id": prev["snapshot_id"]})
+                           "sha256": prev["sha256"], "snapshot_id": prev["snapshot_id"], "via": via})
             print(f"not modified {prev['snapshot_id']} (304)")
             continue
-        rec = store(sid, "publisher_live", src["url"], blob, headers)
+        origin = "publisher_live" if via == "direct" else "wayback_relay"
+        fetch_url = src["url"] if via == "direct" else f"https://web.archive.org/web/{relay_ts}id_/{src['url']}"
+        rec = store(sid, origin, fetch_url, blob, headers, relay_ts)
         is_new = rec["sha256"] not in manifest
         if is_new:
             manifest[rec["sha256"]] = rec
             new_snapshots.append(rec["snapshot_id"])
-            print(f"NEW SNAPSHOT {rec['snapshot_id']} {rec['bytes']:,} B sha256={rec['sha256'][:12]}")
-            if not args.no_wayback_save:
+            print(f"NEW SNAPSHOT {rec['snapshot_id']} {rec['bytes']:,} B sha256={rec['sha256'][:12]} (via {via})")
+            if relay_save:
+                saves.append({**relay_save, "source_id": sid, "snapshot_id": rec["snapshot_id"]})
+            elif not args.no_wayback_save:
                 saves.append({**wayback_save(src["url"]), "source_id": sid, "snapshot_id": rec["snapshot_id"]})
         else:
-            print(f"unchanged {manifest[rec['sha256']]['snapshot_id']}")
+            print(f"unchanged {manifest[rec['sha256']]['snapshot_id']} (via {via})")
         checks.append({"checked_at": rec["retrieved_at"], "source_id": sid, "result": "new" if is_new else "unchanged",
-                       "sha256": rec["sha256"], "snapshot_id": manifest[rec["sha256"]]["snapshot_id"]})
-        state[sid] = {"etag": headers.get("ETag", ""), "last_modified": headers.get("Last-Modified", ""),
-                      "sha256": rec["sha256"], "snapshot_id": manifest[rec["sha256"]]["snapshot_id"]}
+                       "sha256": rec["sha256"], "snapshot_id": manifest[rec["sha256"]]["snapshot_id"], "via": via})
+        if via == "direct":  # Wayback responses carry no Taipower ETag
+            state[sid] = {"etag": headers.get("ETag", ""), "last_modified": headers.get("Last-Modified", ""),
+                          "sha256": rec["sha256"], "snapshot_id": manifest[rec["sha256"]]["snapshot_id"]}
 
     # Backfill from Wayback, once per capture.
     have = {(r["source_id"], r["wayback_timestamp"]) for r in manifest.values()}

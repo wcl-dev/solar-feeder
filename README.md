@@ -45,6 +45,8 @@ python3 -m http.server 8765 --directory web    # 本機預覽 http://localhost:8
 | S12 鄉鎮界線 | 每 90 天比對 data.gov.tw 上的下載網址 | 印出提醒，人工存檔 |
 | S04 立法院報告 | 每年 9 月 15 日自動開 issue 提醒 | 人工擷取、核對（`data/curated/`） |
 
+台電偶爾不回應 GitHub 雲端主機的連線（2026-10-11 實測：同一天一次逾時、一次正常）。直接檢查會重試一次；仍失敗時，改請 Wayback 抓取最新檔案再下載比對，檢查紀錄 `via` 欄註明 `wayback`。手動觸發 workflow 時可勾選 `via_wayback` 測試這條路徑。
+
 網站頁首顯示「本站最後檢查來源」；超過 45 天沒有成功檢查會出現提醒。
 
 手動操作：
