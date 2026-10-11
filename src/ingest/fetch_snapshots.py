@@ -125,6 +125,19 @@ def http_get(url: str, headers: dict | None = None, timeout: int = 120) -> tuple
         raise
 
 
+class FetchError(RuntimeError):
+    """A failed request, labelled with the stage and host so logs show where it broke."""
+
+
+def stage(name: str, url: str, fn, *a, **kw):
+    t0 = time.monotonic()
+    try:
+        return fn(*a, **kw)
+    except Exception as e:
+        host = urllib.parse.urlsplit(url).netloc
+        raise FetchError(f"{name} {host} failed after {time.monotonic() - t0:.0f}s: {type(e).__name__}: {e}") from e
+
+
 def http_get_retry(url: str, headers: dict | None = None, attempts: int = 2, timeout: int = 45) -> tuple[int, bytes, dict]:
     for i in range(attempts):
         try:
@@ -138,7 +151,7 @@ def http_get_retry(url: str, headers: dict | None = None, attempts: int = 2, tim
 
 def via_wayback(url: str) -> tuple[bytes, dict, str, dict]:
     """Have Wayback capture url now, then download that capture. Returns (blob, headers, timestamp, save record)."""
-    save = wayback_save(url)
+    save = stage("wayback save", "https://web.archive.org/save/", wayback_save, url)
     m = re.search(r"/web/(\d{14})", save["capture"])
     if not m:
         raise RuntimeError(f"Wayback relay: no capture ({save['status']})")
@@ -146,7 +159,8 @@ def via_wayback(url: str) -> tuple[bytes, dict, str, dict]:
     age = datetime.now(timezone.utc) - datetime.strptime(ts, "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
     if age > timedelta(days=1):
         raise RuntimeError(f"Wayback relay: newest capture {ts} is not fresh")
-    _, blob, headers = http_get(f"https://web.archive.org/web/{ts}id_/{url}", timeout=180)
+    capture_url = f"https://web.archive.org/web/{ts}id_/{url}"
+    _, blob, headers = stage("wayback download", capture_url, http_get, capture_url, timeout=180)
     headers = {**headers, "Last-Modified": headers.get("x-archive-orig-last-modified", "")}
     return blob, headers, ts, save
 
@@ -288,7 +302,7 @@ def main() -> None:
         try:
             if args.via_wayback:
                 raise RuntimeError("--via-wayback")
-            status, blob, headers = http_get_retry(src["url"], cond)
+            status, blob, headers = stage("direct", src["url"], http_get_retry, src["url"], cond)
         except Exception as e:
             if not args.via_wayback:
                 notices.append(f"DIRECT FAILED {sid}: {type(e).__name__}: {e} — trying Wayback relay")
