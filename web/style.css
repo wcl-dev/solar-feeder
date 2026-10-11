@@ -153,6 +153,7 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
 table.data tbody tr { cursor: pointer; }
 table.data tbody tr:hover { background: #f4f3f0; }
 table.data tbody tr[aria-selected="true"] { background: #e8f0fb; }
+table.data .src-note { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
 table.data td.flag { color: var(--ink-3); font-size: 12.5px; white-space: normal; min-width: 160px; }
 .cls { display: inline-flex; align-items: center; gap: 6px; }
 .cls .swatch { width: 10px; height: 10px; }

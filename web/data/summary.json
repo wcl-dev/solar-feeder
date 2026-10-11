@@ -16,6 +16,12 @@
    "source_url": "https://service.taipower.com.tw/data/opendata/apply/file/d077009/YUNLIN.zip",
    "declared_frequency": "每 6 月（平臺頁面標示）"
   },
+  "S01": {
+   "title": "台灣電力公司全國各縣市再生能源可併網容量",
+   "publisher": "台灣電力公司",
+   "dataset_page": "https://data.gov.tw/dataset/161874",
+   "source_url": "https://service.taipower.com.tw/data/opendata/apply/file/d077009/001.zip"
+  },
   "S12": {
    "title": "鄉鎮市區界線(TWD97經緯度)",
    "publisher": "內政部國土測繪中心",
@@ -25,7 +31,8 @@
    "source_url": "https://www.tgos.tw/tgos/VirtualDir/Product/3fe61d4a-ca23-4f45-8aca-4a536f40f290/%E9%84%89%28%E9%8E%AE%E3%80%81%E5%B8%82%E3%80%81%E5%8D%80%29%E7%95%8C%E7%B7%9A1140318.zip",
    "dataset_page": "https://data.gov.tw/dataset/7441",
    "townships": 20,
-   "s02_page": "https://data.gov.tw/dataset/44208"
+   "s02_page": "https://data.gov.tw/dataset/44208",
+   "s01_page": "https://data.gov.tw/dataset/161874"
   }
  },
  "classes": [
@@ -104,6 +111,9 @@
   "capacity_member_sha256": "7f5dd295d56cb2585d9eafba737d1d1471b61d39fa01ebaedb07c9f662c99576",
   "points_date": "2026-04-27",
   "points_member_sha256": "59f765f518f821806f4081c4834dae480fd034a0c09bda11d50f03c0c77ef7d0",
+  "s01_snapshot_id": "S01-2026-04-27",
+  "s01_archive_sha256": "bba513ab4f5755983cd46e78a5772098afbb40a7954529e61a696b054a84a774",
+  "s01_archive_path": "data/raw/S01/2026-04-27/001.zip",
   "stats": {
    "feeders_with_capacity": 343,
    "capacity_rows": 343,
@@ -120,7 +130,14 @@
    "transformer_points": 36148,
    "feeders_in_points": 345,
    "points_without_capacity_feeder": 1453,
-   "feeders_no_capacity_row": 21,
+   "feeders_no_capacity_row": 11,
+   "points_no_capacity_row": 1406,
+   "feeders_other_county": 9,
+   "points_other_county": 25,
+   "points_feeder_code_none": 22,
+   "feeders_ambiguous_other_county": 0,
+   "national_codes_conflicting": 0,
+   "national_conflict_examples": [],
    "feeders_no_points": 19,
    "points_outside_county": 8,
    "class_counts": {
@@ -129,121 +146,161 @@
     "2": 46,
     "3": 92,
     "4": 79
+   },
+   "map": {
+    "feeders": 345,
+    "transformers": 36148,
+    "class_feeders": {
+     "0": 101,
+     "1": 28,
+     "2": 46,
+     "3": 93,
+     "4": 65,
+     "-1": 11
+    },
+    "class_transformers": {
+     "0": 19132,
+     "1": 3093,
+     "2": 5179,
+     "3": 6406,
+     "4": 910,
+     "-1": 1428
+    }
    }
   }
  },
  "feeders": [
   {
    "feeder": "AH23",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 0.0,
+   "capacity_source": "S01",
+   "capacity_county": "南投",
+   "class": 0,
    "transformer_points": 2,
    "main_township": "斗六市",
    "main_township_share": 0.5,
    "townships": "斗六市、（縣界外）",
    "lon": 120.63866,
    "lat": 23.65992,
-   "flags": "no_capacity_row;points_outside_county"
+   "flags": "capacity_from_other_county;points_outside_county"
   },
   {
    "feeder": "AH31",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 5409.8,
+   "capacity_source": "S01",
+   "capacity_county": "南投",
+   "class": 3,
    "transformer_points": 1,
    "main_township": "（縣界外）",
    "main_township_share": 1.0,
    "townships": "（縣界外）",
    "lon": 120.73137,
    "lat": 23.6153,
-   "flags": "no_capacity_row;points_outside_county"
+   "flags": "capacity_from_other_county;points_outside_county"
   },
   {
    "feeder": "JF25",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 0.0,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 0,
    "transformer_points": 1,
    "main_township": "大埤鄉",
    "main_township_share": 1.0,
    "townships": "大埤鄉",
    "lon": 120.37379,
    "lat": 23.61135,
-   "flags": "no_capacity_row"
+   "flags": "capacity_from_other_county"
   },
   {
    "feeder": "JG31",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 0.0,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 0,
    "transformer_points": 2,
    "main_township": "古坑鄉",
    "main_township_share": 1.0,
    "townships": "古坑鄉",
    "lon": 120.56811,
    "lat": 23.59061,
-   "flags": "no_capacity_row"
+   "flags": "capacity_from_other_county"
   },
   {
    "feeder": "JG38",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 0.0,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 0,
    "transformer_points": 5,
    "main_township": "古坑鄉",
    "main_township_share": 1.0,
    "townships": "古坑鄉",
    "lon": 120.6283,
    "lat": 23.5919,
-   "flags": "no_capacity_row"
+   "flags": "capacity_from_other_county"
   },
   {
    "feeder": "JI36",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 0.0,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 0,
    "transformer_points": 9,
    "main_township": "北港鎮",
    "main_township_share": 0.889,
    "townships": "北港鎮、（縣界外）",
    "lon": 120.33143,
    "lat": 23.58212,
-   "flags": "no_capacity_row;points_outside_county"
+   "flags": "capacity_from_other_county;points_outside_county"
   },
   {
    "feeder": "JL29",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 0.0,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 0,
    "transformer_points": 1,
    "main_township": "口湖鄉",
    "main_township_share": 1.0,
    "townships": "口湖鄉",
    "lon": 120.1583,
    "lat": 23.51643,
-   "flags": "no_capacity_row"
+   "flags": "capacity_from_other_county"
   },
   {
    "feeder": "JX22",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 5278.3,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 3,
    "transformer_points": 3,
    "main_township": "古坑鄉",
    "main_township_share": 1.0,
    "townships": "古坑鄉",
    "lon": 120.72067,
    "lat": 23.57175,
-   "flags": "no_capacity_row"
+   "flags": "capacity_from_other_county"
   },
   {
    "feeder": "JX24",
-   "capacity_kw": null,
-   "class": -1,
+   "capacity_kw": 5321.2,
+   "capacity_source": "S01",
+   "capacity_county": "嘉義",
+   "class": 3,
    "transformer_points": 1,
    "main_township": "古坑鄉",
    "main_township_share": 1.0,
    "townships": "古坑鄉",
    "lon": 120.65549,
    "lat": 23.57535,
-   "flags": "no_capacity_row"
+   "flags": "capacity_from_other_county"
   },
   {
    "feeder": "XA21",
    "capacity_kw": 664.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 162,
    "main_township": "斗南鎮",
@@ -256,6 +313,8 @@
   {
    "feeder": "XA22",
    "capacity_kw": 3652.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 144,
    "main_township": "斗六市",
@@ -268,6 +327,8 @@
   {
    "feeder": "XA23",
    "capacity_kw": 3167.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 241,
    "main_township": "古坑鄉",
@@ -280,6 +341,8 @@
   {
    "feeder": "XA24",
    "capacity_kw": 2328.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 136,
    "main_township": "斗六市",
@@ -292,6 +355,8 @@
   {
    "feeder": "XA25",
    "capacity_kw": 5459.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 38,
    "main_township": "古坑鄉",
@@ -304,6 +369,8 @@
   {
    "feeder": "XA26",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 233,
    "main_township": "古坑鄉",
@@ -316,6 +383,8 @@
   {
    "feeder": "XA27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 129,
    "main_township": "古坑鄉",
@@ -328,6 +397,8 @@
   {
    "feeder": "XA28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 334,
    "main_township": "古坑鄉",
@@ -340,6 +411,8 @@
   {
    "feeder": "XA29",
    "capacity_kw": 4401.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 698,
    "main_township": "古坑鄉",
@@ -352,6 +425,8 @@
   {
    "feeder": "XA30",
    "capacity_kw": 4696.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 75,
    "main_township": "古坑鄉",
@@ -364,6 +439,8 @@
   {
    "feeder": "XB21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 67,
    "main_township": "林內鄉",
@@ -376,6 +453,8 @@
   {
    "feeder": "XB22",
    "capacity_kw": 2137.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 8,
    "main_township": "斗六市",
@@ -388,6 +467,8 @@
   {
    "feeder": "XB23",
    "capacity_kw": 3575.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 138,
    "main_township": "斗六市",
@@ -400,6 +481,8 @@
   {
    "feeder": "XB24",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 243,
    "main_township": "林內鄉",
@@ -412,6 +495,8 @@
   {
    "feeder": "XB25",
    "capacity_kw": 5293.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 2,
    "main_township": "斗六市",
@@ -424,6 +509,8 @@
   {
    "feeder": "XB26",
    "capacity_kw": 501.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 3,
    "main_township": "斗六市",
@@ -436,6 +523,8 @@
   {
    "feeder": "XB27",
    "capacity_kw": 2357.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 9,
    "main_township": "斗六市",
@@ -448,6 +537,8 @@
   {
    "feeder": "XB28",
    "capacity_kw": 1300.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 5,
    "main_township": "斗六市",
@@ -460,6 +551,8 @@
   {
    "feeder": "XB29",
    "capacity_kw": 4947.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 5,
    "main_township": "斗六市",
@@ -472,6 +565,8 @@
   {
    "feeder": "XB30",
    "capacity_kw": 3683.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -484,6 +579,8 @@
   {
    "feeder": "XB51",
    "capacity_kw": 6100.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -496,6 +593,8 @@
   {
    "feeder": "XB52",
    "capacity_kw": 9546.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 4,
    "main_township": "斗六市",
@@ -508,6 +607,8 @@
   {
    "feeder": "XB53",
    "capacity_kw": 10075.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 11,
    "main_township": "斗六市",
@@ -520,6 +621,8 @@
   {
    "feeder": "XB55",
    "capacity_kw": 10687.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 5,
    "main_township": "斗六市",
@@ -532,6 +635,8 @@
   {
    "feeder": "XB56",
    "capacity_kw": 9645.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 5,
    "main_township": "斗六市",
@@ -544,6 +649,8 @@
   {
    "feeder": "XB57",
    "capacity_kw": 6214.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 14,
    "main_township": "斗六市",
@@ -556,6 +663,8 @@
   {
    "feeder": "XB58",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 18,
    "main_township": "斗六市",
@@ -568,6 +677,8 @@
   {
    "feeder": "XB59",
    "capacity_kw": 10221.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 4,
    "main_township": "斗六市",
@@ -580,6 +691,8 @@
   {
    "feeder": "XB60",
    "capacity_kw": 7914.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 9,
    "main_township": "斗六市",
@@ -592,6 +705,8 @@
   {
    "feeder": "XC21",
    "capacity_kw": 4417.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 120,
    "main_township": "西螺鎮",
@@ -604,6 +719,8 @@
   {
    "feeder": "XC22",
    "capacity_kw": 5264.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 43,
    "main_township": "西螺鎮",
@@ -616,6 +733,8 @@
   {
    "feeder": "XC23",
    "capacity_kw": 4513.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 80,
    "main_township": "西螺鎮",
@@ -628,6 +747,8 @@
   {
    "feeder": "XC24",
    "capacity_kw": 5335.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 24,
    "main_township": "西螺鎮",
@@ -640,6 +761,8 @@
   {
    "feeder": "XC25",
    "capacity_kw": 2156.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 135,
    "main_township": "二崙鄉",
@@ -652,6 +775,8 @@
   {
    "feeder": "XC26",
    "capacity_kw": 4789.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 49,
    "main_township": "西螺鎮",
@@ -664,6 +789,8 @@
   {
    "feeder": "XC27",
    "capacity_kw": 3962.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 88,
    "main_township": "西螺鎮",
@@ -676,6 +803,8 @@
   {
    "feeder": "XC28",
    "capacity_kw": 3237.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 138,
    "main_township": "西螺鎮",
@@ -688,6 +817,8 @@
   {
    "feeder": "XC29",
    "capacity_kw": 5119.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 69,
    "main_township": "西螺鎮",
@@ -700,6 +831,8 @@
   {
    "feeder": "XC30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 406,
    "main_township": "二崙鄉",
@@ -712,6 +845,8 @@
   {
    "feeder": "XC31",
    "capacity_kw": 1410.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 116,
    "main_township": "西螺鎮",
@@ -724,6 +859,8 @@
   {
    "feeder": "XC32",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 165,
    "main_township": "西螺鎮",
@@ -736,6 +873,8 @@
   {
    "feeder": "XC33",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 266,
    "main_township": "西螺鎮",
@@ -748,6 +887,8 @@
   {
    "feeder": "XC34",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 95,
    "main_township": "二崙鄉",
@@ -760,6 +901,8 @@
   {
    "feeder": "XC35",
    "capacity_kw": 4877.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 84,
    "main_township": "西螺鎮",
@@ -772,6 +915,8 @@
   {
    "feeder": "XD21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 371,
    "main_township": "土庫鎮",
@@ -784,6 +929,8 @@
   {
    "feeder": "XD22",
    "capacity_kw": 3898.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 112,
    "main_township": "土庫鎮",
@@ -796,6 +943,8 @@
   {
    "feeder": "XD23",
    "capacity_kw": 2946.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 4,
    "main_township": "虎尾鎮",
@@ -808,6 +957,8 @@
   {
    "feeder": "XD24",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 221,
    "main_township": "元長鄉",
@@ -820,6 +971,8 @@
   {
    "feeder": "XD25",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 169,
    "main_township": "土庫鎮",
@@ -832,6 +985,8 @@
   {
    "feeder": "XD26",
    "capacity_kw": 2740.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 32,
    "main_township": "土庫鎮",
@@ -844,6 +999,8 @@
   {
    "feeder": "XD27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 283,
    "main_township": "土庫鎮",
@@ -856,6 +1013,8 @@
   {
    "feeder": "XD28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 179,
    "main_township": "褒忠鄉",
@@ -868,6 +1027,8 @@
   {
    "feeder": "XD29",
    "capacity_kw": 937.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 63,
    "main_township": "褒忠鄉",
@@ -880,6 +1041,8 @@
   {
    "feeder": "XD30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 188,
    "main_township": "土庫鎮",
@@ -892,6 +1055,8 @@
   {
    "feeder": "XD31",
    "capacity_kw": 1814.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 176,
    "main_township": "元長鄉",
@@ -904,6 +1069,8 @@
   {
    "feeder": "XD32",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 233,
    "main_township": "土庫鎮",
@@ -916,6 +1083,8 @@
   {
    "feeder": "XD33",
    "capacity_kw": 1600.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 132,
    "main_township": "土庫鎮",
@@ -928,6 +1097,8 @@
   {
    "feeder": "XD34",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 190,
    "main_township": "土庫鎮",
@@ -940,6 +1111,8 @@
   {
    "feeder": "XD35",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 198,
    "main_township": "褒忠鄉",
@@ -952,6 +1125,8 @@
   {
    "feeder": "XE21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 55,
    "main_township": "麥寮鄉",
@@ -964,6 +1139,8 @@
   {
    "feeder": "XE22",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 65,
    "main_township": "東勢鄉",
@@ -976,6 +1153,8 @@
   {
    "feeder": "XE23",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 140,
    "main_township": "麥寮鄉",
@@ -988,6 +1167,8 @@
   {
    "feeder": "XE24",
    "capacity_kw": 4504.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 99,
    "main_township": "麥寮鄉",
@@ -1000,6 +1181,8 @@
   {
    "feeder": "XE25",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 229,
    "main_township": "麥寮鄉",
@@ -1012,6 +1195,8 @@
   {
    "feeder": "XE26",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 109,
    "main_township": "麥寮鄉",
@@ -1024,6 +1209,8 @@
   {
    "feeder": "XE27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 136,
    "main_township": "麥寮鄉",
@@ -1036,6 +1223,8 @@
   {
    "feeder": "XE28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 317,
    "main_township": "麥寮鄉",
@@ -1048,6 +1237,8 @@
   {
    "feeder": "XE29",
    "capacity_kw": 4420.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 18,
    "main_township": "麥寮鄉",
@@ -1060,6 +1251,8 @@
   {
    "feeder": "XE30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 167,
    "main_township": "麥寮鄉",
@@ -1072,6 +1265,8 @@
   {
    "feeder": "XE31",
    "capacity_kw": 569.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 128,
    "main_township": "麥寮鄉",
@@ -1084,6 +1279,8 @@
   {
    "feeder": "XE32",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 273,
    "main_township": "麥寮鄉",
@@ -1096,6 +1293,8 @@
   {
    "feeder": "XE33",
    "capacity_kw": 1250.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 156,
    "main_township": "麥寮鄉",
@@ -1108,6 +1307,8 @@
   {
    "feeder": "XE34",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 17,
    "main_township": "麥寮鄉",
@@ -1120,6 +1321,8 @@
   {
    "feeder": "XE35",
    "capacity_kw": 5167.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 52,
    "main_township": "麥寮鄉",
@@ -1132,6 +1335,8 @@
   {
    "feeder": "XF21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 437,
    "main_township": "北港鎮",
@@ -1144,6 +1349,8 @@
   {
    "feeder": "XF22",
    "capacity_kw": 491.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 260,
    "main_township": "元長鄉",
@@ -1156,6 +1363,8 @@
   {
    "feeder": "XF23",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 375,
    "main_township": "元長鄉",
@@ -1168,6 +1377,8 @@
   {
    "feeder": "XF24",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 247,
    "main_township": "元長鄉",
@@ -1180,6 +1391,8 @@
   {
    "feeder": "XF25",
    "capacity_kw": 2078.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 279,
    "main_township": "元長鄉",
@@ -1192,6 +1405,8 @@
   {
    "feeder": "XF26",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 312,
    "main_township": "元長鄉",
@@ -1204,6 +1419,8 @@
   {
    "feeder": "XF27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 267,
    "main_township": "元長鄉",
@@ -1216,6 +1433,8 @@
   {
    "feeder": "XF28",
    "capacity_kw": 999.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 104,
    "main_township": "元長鄉",
@@ -1228,6 +1447,8 @@
   {
    "feeder": "XF29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 204,
    "main_township": "元長鄉",
@@ -1240,6 +1461,8 @@
   {
    "feeder": "XF30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 279,
    "main_township": "土庫鎮",
@@ -1252,6 +1475,8 @@
   {
    "feeder": "XF31",
    "capacity_kw": 1590.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 97,
    "main_township": "元長鄉",
@@ -1264,6 +1489,8 @@
   {
    "feeder": "XG21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 235,
    "main_township": "水林鄉",
@@ -1276,6 +1503,8 @@
   {
    "feeder": "XG22",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 272,
    "main_township": "北港鎮",
@@ -1288,6 +1517,8 @@
   {
    "feeder": "XG23",
    "capacity_kw": 4699.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 27,
    "main_township": "北港鎮",
@@ -1300,6 +1531,8 @@
   {
    "feeder": "XG24",
    "capacity_kw": 2690.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 136,
    "main_township": "北港鎮",
@@ -1312,6 +1545,8 @@
   {
    "feeder": "XG25",
    "capacity_kw": 3930.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 63,
    "main_township": "水林鄉",
@@ -1324,6 +1559,8 @@
   {
    "feeder": "XG31",
    "capacity_kw": 1892.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 247,
    "main_township": "北港鎮",
@@ -1336,6 +1573,8 @@
   {
    "feeder": "XG32",
    "capacity_kw": 4923.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 64,
    "main_township": "北港鎮",
@@ -1348,6 +1587,8 @@
   {
    "feeder": "XG33",
    "capacity_kw": 4992.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 33,
    "main_township": "北港鎮",
@@ -1360,6 +1601,8 @@
   {
    "feeder": "XG34",
    "capacity_kw": 4829.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 19,
    "main_township": "北港鎮",
@@ -1372,6 +1615,8 @@
   {
    "feeder": "XG35",
    "capacity_kw": 2950.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 67,
    "main_township": "北港鎮",
@@ -1384,6 +1629,8 @@
   {
    "feeder": "XH21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 94,
    "main_township": "東勢鄉",
@@ -1396,6 +1643,8 @@
   {
    "feeder": "XH22",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 172,
    "main_township": "東勢鄉",
@@ -1408,6 +1657,8 @@
   {
    "feeder": "XH23",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 363,
    "main_township": "四湖鄉",
@@ -1420,6 +1671,8 @@
   {
    "feeder": "XH24",
    "capacity_kw": 1089.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 217,
    "main_township": "東勢鄉",
@@ -1432,6 +1685,8 @@
   {
    "feeder": "XH25",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 381,
    "main_township": "四湖鄉",
@@ -1444,6 +1699,8 @@
   {
    "feeder": "XH26",
    "capacity_kw": 2412.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 94,
    "main_township": "東勢鄉",
@@ -1456,6 +1713,8 @@
   {
    "feeder": "XH27",
    "capacity_kw": 4115.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 74,
    "main_township": "東勢鄉",
@@ -1468,6 +1727,8 @@
   {
    "feeder": "XH28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 105,
    "main_township": "東勢鄉",
@@ -1480,6 +1741,8 @@
   {
    "feeder": "XH29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 132,
    "main_township": "褒忠鄉",
@@ -1492,6 +1755,8 @@
   {
    "feeder": "XH30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 166,
    "main_township": "東勢鄉",
@@ -1504,6 +1769,8 @@
   {
    "feeder": "XH31",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 135,
    "main_township": "東勢鄉",
@@ -1516,6 +1783,8 @@
   {
    "feeder": "XH32",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 99,
    "main_township": "東勢鄉",
@@ -1528,6 +1797,8 @@
   {
    "feeder": "XH33",
    "capacity_kw": 990.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 146,
    "main_township": "四湖鄉",
@@ -1540,6 +1811,8 @@
   {
    "feeder": "XH34",
    "capacity_kw": 480.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 92,
    "main_township": "臺西鄉",
@@ -1552,6 +1825,8 @@
   {
    "feeder": "XH35",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 184,
    "main_township": "褒忠鄉",
@@ -1564,6 +1839,8 @@
   {
    "feeder": "XH36",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 128,
    "main_township": "東勢鄉",
@@ -1576,6 +1853,8 @@
   {
    "feeder": "XI21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 182,
    "main_township": "崙背鄉",
@@ -1588,6 +1867,8 @@
   {
    "feeder": "XI22",
    "capacity_kw": 1418.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 169,
    "main_township": "二崙鄉",
@@ -1600,6 +1881,8 @@
   {
    "feeder": "XI23",
    "capacity_kw": 4842.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 62,
    "main_township": "崙背鄉",
@@ -1612,6 +1895,8 @@
   {
    "feeder": "XI24",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 381,
    "main_township": "二崙鄉",
@@ -1624,6 +1909,8 @@
   {
    "feeder": "XI25",
    "capacity_kw": 4188.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 66,
    "main_township": "崙背鄉",
@@ -1636,6 +1923,8 @@
   {
    "feeder": "XI26",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 220,
    "main_township": "崙背鄉",
@@ -1648,6 +1937,8 @@
   {
    "feeder": "XI27",
    "capacity_kw": 358.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 122,
    "main_township": "二崙鄉",
@@ -1660,6 +1951,8 @@
   {
    "feeder": "XI28",
    "capacity_kw": 3388.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 126,
    "main_township": "崙背鄉",
@@ -1672,6 +1965,8 @@
   {
    "feeder": "XI29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 465,
    "main_township": "二崙鄉",
@@ -1684,6 +1979,8 @@
   {
    "feeder": "XI30",
    "capacity_kw": 2981.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 137,
    "main_township": "崙背鄉",
@@ -1696,6 +1993,8 @@
   {
    "feeder": "XI31",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 242,
    "main_township": "崙背鄉",
@@ -1708,6 +2007,8 @@
   {
    "feeder": "XI32",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 159,
    "main_township": "崙背鄉",
@@ -1720,6 +2021,8 @@
   {
    "feeder": "XI33",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 153,
    "main_township": "麥寮鄉",
@@ -1732,6 +2035,8 @@
   {
    "feeder": "XI34",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 211,
    "main_township": "崙背鄉",
@@ -1744,6 +2049,8 @@
   {
    "feeder": "XI35",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 65,
    "main_township": "崙背鄉",
@@ -1756,6 +2063,8 @@
   {
    "feeder": "XJ21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 287,
    "main_township": "虎尾鎮",
@@ -1768,6 +2077,8 @@
   {
    "feeder": "XJ22",
    "capacity_kw": 4231.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 54,
    "main_township": "虎尾鎮",
@@ -1780,6 +2091,8 @@
   {
    "feeder": "XJ23",
    "capacity_kw": 5262.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 24,
    "main_township": "虎尾鎮",
@@ -1792,6 +2105,8 @@
   {
    "feeder": "XJ24",
    "capacity_kw": 3680.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 39,
    "main_township": "虎尾鎮",
@@ -1804,6 +2119,8 @@
   {
    "feeder": "XJ25",
    "capacity_kw": 5340.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 35,
    "main_township": "虎尾鎮",
@@ -1816,6 +2133,8 @@
   {
    "feeder": "XJ26",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 251,
    "main_township": "虎尾鎮",
@@ -1828,6 +2147,8 @@
   {
    "feeder": "XJ27",
    "capacity_kw": 3764.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 98,
    "main_township": "虎尾鎮",
@@ -1840,6 +2161,8 @@
   {
    "feeder": "XJ28",
    "capacity_kw": 693.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 89,
    "main_township": "虎尾鎮",
@@ -1852,6 +2175,8 @@
   {
    "feeder": "XJ29",
    "capacity_kw": 5367.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 43,
    "main_township": "虎尾鎮",
@@ -1864,6 +2189,8 @@
   {
    "feeder": "XJ30",
    "capacity_kw": 4025.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 65,
    "main_township": "虎尾鎮",
@@ -1876,6 +2203,8 @@
   {
    "feeder": "XJ51",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 8,
    "main_township": "虎尾鎮",
@@ -1888,6 +2217,8 @@
   {
    "feeder": "XJ53",
    "capacity_kw": 9333.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 32,
    "main_township": "虎尾鎮",
@@ -1900,6 +2231,8 @@
   {
    "feeder": "XJ54",
    "capacity_kw": 10903.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 59,
    "main_township": "虎尾鎮",
@@ -1912,6 +2245,8 @@
   {
    "feeder": "XJ55",
    "capacity_kw": 10963.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 12,
    "main_township": "虎尾鎮",
@@ -1924,6 +2259,8 @@
   {
    "feeder": "XJ56",
    "capacity_kw": 10963.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 17,
    "main_township": "虎尾鎮",
@@ -1936,6 +2273,8 @@
   {
    "feeder": "XJ58",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -1948,6 +2287,8 @@
   {
    "feeder": "XJ59",
    "capacity_kw": 10864.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 59,
    "main_township": "虎尾鎮",
@@ -1960,6 +2301,8 @@
   {
    "feeder": "XJ60",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 84,
    "main_township": "虎尾鎮",
@@ -1972,6 +2315,8 @@
   {
    "feeder": "XK21",
    "capacity_kw": 4209.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 160,
    "main_township": "莿桐鄉",
@@ -1984,6 +2329,8 @@
   {
    "feeder": "XK22",
    "capacity_kw": 900.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 130,
    "main_township": "莿桐鄉",
@@ -1996,6 +2343,8 @@
   {
    "feeder": "XK23",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 193,
    "main_township": "斗六市",
@@ -2008,6 +2357,8 @@
   {
    "feeder": "XK24",
    "capacity_kw": 1345.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 55,
    "main_township": "莿桐鄉",
@@ -2020,6 +2371,8 @@
   {
    "feeder": "XK25",
    "capacity_kw": 2205.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 45,
    "main_township": "虎尾鎮",
@@ -2032,6 +2385,8 @@
   {
    "feeder": "XK26",
    "capacity_kw": 5441.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 11,
    "main_township": "莿桐鄉",
@@ -2044,6 +2399,8 @@
   {
    "feeder": "XK27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 244,
    "main_township": "莿桐鄉",
@@ -2056,6 +2413,8 @@
   {
    "feeder": "XK28",
    "capacity_kw": 4110.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 156,
    "main_township": "斗六市",
@@ -2068,6 +2427,8 @@
   {
    "feeder": "XK29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 215,
    "main_township": "莿桐鄉",
@@ -2080,6 +2441,8 @@
   {
    "feeder": "XK30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 373,
    "main_township": "莿桐鄉",
@@ -2092,6 +2455,8 @@
   {
    "feeder": "XL21",
    "capacity_kw": 5319.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 46,
    "main_township": "斗六市",
@@ -2104,6 +2469,8 @@
   {
    "feeder": "XL22",
    "capacity_kw": 4786.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 108,
    "main_township": "斗六市",
@@ -2116,6 +2483,8 @@
   {
    "feeder": "XL23",
    "capacity_kw": 5343.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 61,
    "main_township": "斗六市",
@@ -2128,6 +2497,8 @@
   {
    "feeder": "XL26",
    "capacity_kw": 2880.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 97,
    "main_township": "斗六市",
@@ -2140,6 +2511,8 @@
   {
    "feeder": "XL27",
    "capacity_kw": 5439.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 17,
    "main_township": "斗六市",
@@ -2152,6 +2525,8 @@
   {
    "feeder": "XL28",
    "capacity_kw": 5187.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 26,
    "main_township": "斗六市",
@@ -2164,6 +2539,8 @@
   {
    "feeder": "XL29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 52,
    "main_township": "斗六市",
@@ -2176,6 +2553,8 @@
   {
    "feeder": "XL30",
    "capacity_kw": 2901.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 116,
    "main_township": "斗南鎮",
@@ -2188,6 +2567,8 @@
   {
    "feeder": "XL61",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2200,6 +2581,8 @@
   {
    "feeder": "XL62",
    "capacity_kw": 10000.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2212,6 +2595,8 @@
   {
    "feeder": "XL63",
    "capacity_kw": 6960.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 6,
    "main_township": "斗六市",
@@ -2224,6 +2609,8 @@
   {
    "feeder": "XL64",
    "capacity_kw": 8837.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 6,
    "main_township": "斗六市",
@@ -2236,6 +2623,8 @@
   {
    "feeder": "XL65",
    "capacity_kw": 10730.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 37,
    "main_township": "斗六市",
@@ -2248,6 +2637,8 @@
   {
    "feeder": "XL66",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2260,6 +2651,8 @@
   {
    "feeder": "XL67",
    "capacity_kw": 7950.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 8,
    "main_township": "斗六市",
@@ -2272,6 +2665,8 @@
   {
    "feeder": "XL68",
    "capacity_kw": 10259.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 3,
    "main_township": "斗六市",
@@ -2284,6 +2679,8 @@
   {
    "feeder": "XL71",
    "capacity_kw": 9653.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 3,
    "main_township": "斗六市",
@@ -2296,6 +2693,8 @@
   {
    "feeder": "XL72",
    "capacity_kw": 10579.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 2,
    "main_township": "斗六市",
@@ -2308,6 +2707,8 @@
   {
    "feeder": "XL73",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2320,6 +2721,8 @@
   {
    "feeder": "XL74",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2332,6 +2735,8 @@
   {
    "feeder": "XL75",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2344,6 +2749,8 @@
   {
    "feeder": "XL76",
    "capacity_kw": 10001.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -2356,6 +2763,8 @@
   {
    "feeder": "XL77",
    "capacity_kw": 8663.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 3,
    "main_township": "斗六市",
@@ -2368,6 +2777,8 @@
   {
    "feeder": "XL78",
    "capacity_kw": 7487.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 2,
    "main_township": "斗六市",
@@ -2380,6 +2791,8 @@
   {
    "feeder": "XM21",
    "capacity_kw": 2200.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 153,
    "main_township": "林內鄉",
@@ -2392,6 +2805,8 @@
   {
    "feeder": "XM22",
    "capacity_kw": 4732.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 116,
    "main_township": "林內鄉",
@@ -2404,6 +2819,8 @@
   {
    "feeder": "XM23",
    "capacity_kw": 645.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 225,
    "main_township": "林內鄉",
@@ -2416,6 +2833,8 @@
   {
    "feeder": "XM24",
    "capacity_kw": 712.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 76,
    "main_township": "林內鄉",
@@ -2428,6 +2847,8 @@
   {
    "feeder": "XM25",
    "capacity_kw": 960.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 104,
    "main_township": "林內鄉",
@@ -2440,6 +2861,8 @@
   {
    "feeder": "XN62",
    "capacity_kw": 10091.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 59,
    "main_township": "斗六市",
@@ -2452,6 +2875,8 @@
   {
    "feeder": "XN63",
    "capacity_kw": 8723.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 34,
    "main_township": "斗六市",
@@ -2464,6 +2889,8 @@
   {
    "feeder": "XN64",
    "capacity_kw": 10766.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 23,
    "main_township": "斗六市",
@@ -2476,6 +2903,8 @@
   {
    "feeder": "XN65",
    "capacity_kw": 7050.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 19,
    "main_township": "斗六市",
@@ -2488,6 +2917,8 @@
   {
    "feeder": "XN66",
    "capacity_kw": 8723.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 4,
    "main_township": "斗六市",
@@ -2500,6 +2931,8 @@
   {
    "feeder": "XN67",
    "capacity_kw": 8074.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 11,
    "main_township": "斗六市",
@@ -2512,6 +2945,8 @@
   {
    "feeder": "XN68",
    "capacity_kw": 6003.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 12,
    "main_township": "斗六市",
@@ -2524,6 +2959,8 @@
   {
    "feeder": "XN71",
    "capacity_kw": 10377.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 26,
    "main_township": "斗六市",
@@ -2536,6 +2973,8 @@
   {
    "feeder": "XN72",
    "capacity_kw": 8662.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 10,
    "main_township": "斗六市",
@@ -2548,6 +2987,8 @@
   {
    "feeder": "XN73",
    "capacity_kw": 10915.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 10,
    "main_township": "斗六市",
@@ -2560,6 +3001,8 @@
   {
    "feeder": "XN74",
    "capacity_kw": 230.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 13,
    "main_township": "斗六市",
@@ -2572,6 +3015,8 @@
   {
    "feeder": "XN75",
    "capacity_kw": 10952.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 15,
    "main_township": "斗六市",
@@ -2584,6 +3029,8 @@
   {
    "feeder": "XN76",
    "capacity_kw": 9826.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2596,6 +3043,8 @@
   {
    "feeder": "XN77",
    "capacity_kw": 6336.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 6,
    "main_township": "斗六市",
@@ -2608,6 +3057,8 @@
   {
    "feeder": "XN78",
    "capacity_kw": 9010.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -2620,6 +3071,8 @@
   {
    "feeder": "XO31",
    "capacity_kw": 437.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 162,
    "main_township": "虎尾鎮",
@@ -2632,6 +3085,8 @@
   {
    "feeder": "XO32",
    "capacity_kw": 1040.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 145,
    "main_township": "虎尾鎮",
@@ -2644,6 +3099,8 @@
   {
    "feeder": "XO33",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 129,
    "main_township": "二崙鄉",
@@ -2656,6 +3113,8 @@
   {
    "feeder": "XO34",
    "capacity_kw": 26.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 228,
    "main_township": "虎尾鎮",
@@ -2668,6 +3127,8 @@
   {
    "feeder": "XO35",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 182,
    "main_township": "西螺鎮",
@@ -2680,6 +3141,8 @@
   {
    "feeder": "XO36",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 98,
    "main_township": "二崙鄉",
@@ -2692,6 +3155,8 @@
   {
    "feeder": "XO37",
    "capacity_kw": 1999.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 131,
    "main_township": "虎尾鎮",
@@ -2704,6 +3169,8 @@
   {
    "feeder": "XO38",
    "capacity_kw": 720.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 134,
    "main_township": "虎尾鎮",
@@ -2716,6 +3183,8 @@
   {
    "feeder": "XO39",
    "capacity_kw": 80.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 97,
    "main_township": "虎尾鎮",
@@ -2728,6 +3197,8 @@
   {
    "feeder": "XO40",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 216,
    "main_township": "西螺鎮",
@@ -2740,6 +3211,8 @@
   {
    "feeder": "XO61",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2752,6 +3225,8 @@
   {
    "feeder": "XO62",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2764,6 +3239,8 @@
   {
    "feeder": "XO63",
    "capacity_kw": 10295.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 4,
    "main_township": "虎尾鎮",
@@ -2776,6 +3253,8 @@
   {
    "feeder": "XO64",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 2,
    "main_township": "虎尾鎮",
@@ -2788,6 +3267,8 @@
   {
    "feeder": "XO65",
    "capacity_kw": 7179.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 10,
    "main_township": "虎尾鎮",
@@ -2800,6 +3281,8 @@
   {
    "feeder": "XO71",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 10,
    "main_township": "虎尾鎮",
@@ -2812,6 +3295,8 @@
   {
    "feeder": "XO72",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -2824,6 +3309,8 @@
   {
    "feeder": "XO75",
    "capacity_kw": 6481.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 8,
    "main_township": "虎尾鎮",
@@ -2836,6 +3323,8 @@
   {
    "feeder": "XP21",
    "capacity_kw": 1300.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 65,
    "main_township": "臺西鄉",
@@ -2848,6 +3337,8 @@
   {
    "feeder": "XP22",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 220,
    "main_township": "臺西鄉",
@@ -2860,6 +3351,8 @@
   {
    "feeder": "XP23",
    "capacity_kw": 860.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 116,
    "main_township": "臺西鄉",
@@ -2872,6 +3365,8 @@
   {
    "feeder": "XP24",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 132,
    "main_township": "麥寮鄉",
@@ -2884,6 +3379,8 @@
   {
    "feeder": "XP25",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 7,
    "main_township": "臺西鄉",
@@ -2896,6 +3393,8 @@
   {
    "feeder": "XP26",
    "capacity_kw": 2912.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 58,
    "main_township": "臺西鄉",
@@ -2908,6 +3407,8 @@
   {
    "feeder": "XP27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 133,
    "main_township": "臺西鄉",
@@ -2920,6 +3421,8 @@
   {
    "feeder": "XP28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 105,
    "main_township": "臺西鄉",
@@ -2932,6 +3435,8 @@
   {
    "feeder": "XP29",
    "capacity_kw": 1950.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 67,
    "main_township": "臺西鄉",
@@ -2944,6 +3449,8 @@
   {
    "feeder": "XP30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 163,
    "main_township": "臺西鄉",
@@ -2956,6 +3463,8 @@
   {
    "feeder": "XP31",
    "capacity_kw": 4170.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 57,
    "main_township": "臺西鄉",
@@ -2968,6 +3477,8 @@
   {
    "feeder": "XP32",
    "capacity_kw": 3558.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 36,
    "main_township": "臺西鄉",
@@ -2980,6 +3491,8 @@
   {
    "feeder": "XP33",
    "capacity_kw": 5023.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 6,
    "main_township": "臺西鄉",
@@ -2992,6 +3505,8 @@
   {
    "feeder": "XP34",
    "capacity_kw": 5464.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 27,
    "main_township": "臺西鄉",
@@ -3004,6 +3519,8 @@
   {
    "feeder": "XP35",
    "capacity_kw": 467.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 15,
    "main_township": "臺西鄉",
@@ -3016,6 +3533,8 @@
   {
    "feeder": "XP36",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 186,
    "main_township": "臺西鄉",
@@ -3028,6 +3547,8 @@
   {
    "feeder": "XP37",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 112,
    "main_township": "臺西鄉",
@@ -3040,6 +3561,8 @@
   {
    "feeder": "XP38",
    "capacity_kw": 900.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 25,
    "main_township": "臺西鄉",
@@ -3052,6 +3575,8 @@
   {
    "feeder": "XP39",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 35,
    "main_township": "臺西鄉",
@@ -3064,6 +3589,8 @@
   {
    "feeder": "XP40",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 79,
    "main_township": "麥寮鄉",
@@ -3076,6 +3603,8 @@
   {
    "feeder": "XQ21",
    "capacity_kw": 1497.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 27,
    "main_township": "四湖鄉",
@@ -3088,6 +3617,8 @@
   {
    "feeder": "XQ22",
    "capacity_kw": 1671.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 126,
    "main_township": "四湖鄉",
@@ -3100,6 +3631,8 @@
   {
    "feeder": "XQ23",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 346,
    "main_township": "四湖鄉",
@@ -3112,6 +3645,8 @@
   {
    "feeder": "XQ24",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 90,
    "main_township": "口湖鄉",
@@ -3124,6 +3659,8 @@
   {
    "feeder": "XQ25",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 151,
    "main_township": "四湖鄉",
@@ -3136,6 +3673,8 @@
   {
    "feeder": "XQ26",
    "capacity_kw": 3320.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 97,
    "main_township": "口湖鄉",
@@ -3148,6 +3687,8 @@
   {
    "feeder": "XQ27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 62,
    "main_township": "四湖鄉",
@@ -3160,6 +3701,8 @@
   {
    "feeder": "XQ28",
    "capacity_kw": 370.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 25,
    "main_township": "口湖鄉",
@@ -3172,6 +3715,8 @@
   {
    "feeder": "XQ29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 59,
    "main_township": "四湖鄉",
@@ -3184,6 +3729,8 @@
   {
    "feeder": "XQ30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 61,
    "main_township": "口湖鄉",
@@ -3196,6 +3743,8 @@
   {
    "feeder": "XQ31",
    "capacity_kw": 2688.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 141,
    "main_township": "四湖鄉",
@@ -3208,6 +3757,8 @@
   {
    "feeder": "XQ32",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 6,
    "main_township": "口湖鄉",
@@ -3220,6 +3771,8 @@
   {
    "feeder": "XQ33",
    "capacity_kw": 2260.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 82,
    "main_township": "口湖鄉",
@@ -3232,6 +3785,8 @@
   {
    "feeder": "XQ34",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 96,
    "main_township": "口湖鄉",
@@ -3244,6 +3799,8 @@
   {
    "feeder": "XQ35",
    "capacity_kw": 2655.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 114,
    "main_township": "四湖鄉",
@@ -3256,6 +3813,8 @@
   {
    "feeder": "XQ36",
    "capacity_kw": 5484.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 44,
    "main_township": "口湖鄉",
@@ -3268,6 +3827,8 @@
   {
    "feeder": "XQ37",
    "capacity_kw": 4335.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 26,
    "main_township": "四湖鄉",
@@ -3280,6 +3841,8 @@
   {
    "feeder": "XQ38",
    "capacity_kw": 27.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 183,
    "main_township": "口湖鄉",
@@ -3292,6 +3855,8 @@
   {
    "feeder": "XQ39",
    "capacity_kw": 1631.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 66,
    "main_township": "口湖鄉",
@@ -3304,6 +3869,8 @@
   {
    "feeder": "XQ40",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 127,
    "main_township": "四湖鄉",
@@ -3316,6 +3883,8 @@
   {
    "feeder": "XR21",
    "capacity_kw": 5154.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 53,
    "main_township": "水林鄉",
@@ -3328,6 +3897,8 @@
   {
    "feeder": "XR22",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 399,
    "main_township": "水林鄉",
@@ -3340,6 +3911,8 @@
   {
    "feeder": "XR23",
    "capacity_kw": 2347.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 295,
    "main_township": "水林鄉",
@@ -3352,6 +3925,8 @@
   {
    "feeder": "XR24",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 12,
    "main_township": "口湖鄉",
@@ -3364,6 +3939,8 @@
   {
    "feeder": "XR25",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 121,
    "main_township": "口湖鄉",
@@ -3376,6 +3953,8 @@
   {
    "feeder": "XR26",
    "capacity_kw": 4300.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 60,
    "main_township": "水林鄉",
@@ -3388,6 +3967,8 @@
   {
    "feeder": "XR27",
    "capacity_kw": 506.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 66,
    "main_township": "水林鄉",
@@ -3400,6 +3981,8 @@
   {
    "feeder": "XR28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 174,
    "main_township": "水林鄉",
@@ -3412,6 +3995,8 @@
   {
    "feeder": "XR29",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 99,
    "main_township": "水林鄉",
@@ -3424,6 +4009,8 @@
   {
    "feeder": "XR30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 108,
    "main_township": "水林鄉",
@@ -3436,6 +4023,8 @@
   {
    "feeder": "XR31",
    "capacity_kw": 1008.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 157,
    "main_township": "水林鄉",
@@ -3448,6 +4037,8 @@
   {
    "feeder": "XR32",
    "capacity_kw": 1098.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 116,
    "main_township": "口湖鄉",
@@ -3460,6 +4051,8 @@
   {
    "feeder": "XR33",
    "capacity_kw": 5491.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 81,
    "main_township": "口湖鄉",
@@ -3472,6 +4065,8 @@
   {
    "feeder": "XR34",
    "capacity_kw": 3340.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 166,
    "main_township": "口湖鄉",
@@ -3484,6 +4079,8 @@
   {
    "feeder": "XR35",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 165,
    "main_township": "水林鄉",
@@ -3496,6 +4093,8 @@
   {
    "feeder": "XR36",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 77,
    "main_township": "口湖鄉",
@@ -3508,6 +4107,8 @@
   {
    "feeder": "XT21",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 250,
    "main_township": "大埤鄉",
@@ -3520,6 +4121,8 @@
   {
    "feeder": "XT22",
    "capacity_kw": 4563.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 7,
    "main_township": "大埤鄉",
@@ -3532,6 +4135,8 @@
   {
    "feeder": "XT23",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 210,
    "main_township": "大埤鄉",
@@ -3544,6 +4149,8 @@
   {
    "feeder": "XT24",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 0,
    "main_township": "",
@@ -3556,6 +4163,8 @@
   {
    "feeder": "XT25",
    "capacity_kw": 4709.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 107,
    "main_township": "大埤鄉",
@@ -3568,6 +4177,8 @@
   {
    "feeder": "XT26",
    "capacity_kw": 4205.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 9,
    "main_township": "大埤鄉",
@@ -3580,6 +4191,8 @@
   {
    "feeder": "XT27",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 319,
    "main_township": "大埤鄉",
@@ -3592,6 +4205,8 @@
   {
    "feeder": "XT28",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 250,
    "main_township": "大埤鄉",
@@ -3604,6 +4219,8 @@
   {
    "feeder": "XT29",
    "capacity_kw": 810.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 170,
    "main_township": "斗南鎮",
@@ -3616,6 +4233,8 @@
   {
    "feeder": "XT30",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 357,
    "main_township": "大埤鄉",
@@ -3628,6 +4247,8 @@
   {
    "feeder": "XT34",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 33,
    "main_township": "大埤鄉",
@@ -3640,6 +4261,8 @@
   {
    "feeder": "XT35",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 5,
    "main_township": "大埤鄉",
@@ -3652,6 +4275,8 @@
   {
    "feeder": "XT36",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 221,
    "main_township": "斗南鎮",
@@ -3664,6 +4289,8 @@
   {
    "feeder": "XU26",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 3,
    "main_township": "斗六市",
@@ -3676,6 +4303,8 @@
   {
    "feeder": "XU27",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 239,
    "main_township": "古坑鄉",
@@ -3688,6 +4317,8 @@
   {
    "feeder": "XU28",
    "capacity_kw": 4013.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 7,
    "main_township": "斗六市",
@@ -3700,6 +4331,8 @@
   {
    "feeder": "XU29",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -3712,6 +4345,8 @@
   {
    "feeder": "XU30",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 2,
    "main_township": "斗六市",
@@ -3724,6 +4359,8 @@
   {
    "feeder": "XU36",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 482,
    "main_township": "古坑鄉",
@@ -3736,6 +4373,8 @@
   {
    "feeder": "XU37",
    "capacity_kw": 5101.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 6,
    "main_township": "斗六市",
@@ -3748,6 +4387,8 @@
   {
    "feeder": "XU38",
    "capacity_kw": 2855.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 73,
    "main_township": "斗六市",
@@ -3760,6 +4401,8 @@
   {
    "feeder": "XU39",
    "capacity_kw": 4708.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 82,
    "main_township": "斗六市",
@@ -3772,6 +4415,8 @@
   {
    "feeder": "XU40",
    "capacity_kw": 5486.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 18,
    "main_township": "斗六市",
@@ -3784,6 +4429,8 @@
   {
    "feeder": "XU51",
    "capacity_kw": 4574.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 0,
    "main_township": "",
@@ -3796,6 +4443,8 @@
   {
    "feeder": "XU52",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -3808,6 +4457,8 @@
   {
    "feeder": "XU53",
    "capacity_kw": 6000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -3820,6 +4471,8 @@
   {
    "feeder": "XU54",
    "capacity_kw": 6190.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 10,
    "main_township": "斗六市",
@@ -3832,6 +4485,8 @@
   {
    "feeder": "XU55",
    "capacity_kw": 6599.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 9,
    "main_township": "斗六市",
@@ -3844,6 +4499,8 @@
   {
    "feeder": "XU61",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -3856,6 +4513,8 @@
   {
    "feeder": "XU62",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 1,
    "main_township": "斗六市",
@@ -3868,6 +4527,8 @@
   {
    "feeder": "XU63",
    "capacity_kw": 9354.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 5,
    "main_township": "斗六市",
@@ -3880,6 +4541,8 @@
   {
    "feeder": "XU64",
    "capacity_kw": 10615.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 3,
    "main_township": "斗六市",
@@ -3892,6 +4555,8 @@
   {
    "feeder": "XU65",
    "capacity_kw": 8712.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 9,
    "main_township": "斗六市",
@@ -3904,6 +4569,8 @@
   {
    "feeder": "XU70",
    "capacity_kw": 8197.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 7,
    "main_township": "斗六市",
@@ -3916,6 +4583,8 @@
   {
    "feeder": "XU79",
    "capacity_kw": 11000.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 0,
    "main_township": "",
@@ -3928,6 +4597,8 @@
   {
    "feeder": "XW31",
    "capacity_kw": 5022.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 86,
    "main_township": "斗六市",
@@ -3940,6 +4611,8 @@
   {
    "feeder": "XW32",
    "capacity_kw": 3690.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 114,
    "main_township": "斗南鎮",
@@ -3952,6 +4625,8 @@
   {
    "feeder": "XW33",
    "capacity_kw": 4582.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 114,
    "main_township": "斗南鎮",
@@ -3964,6 +4639,8 @@
   {
    "feeder": "XW34",
    "capacity_kw": 4473.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 17,
    "main_township": "斗南鎮",
@@ -3976,6 +4653,8 @@
   {
    "feeder": "XW35",
    "capacity_kw": 5118.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 40,
    "main_township": "斗南鎮",
@@ -3988,6 +4667,8 @@
   {
    "feeder": "XW36",
    "capacity_kw": 2381.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 135,
    "main_township": "斗南鎮",
@@ -4000,6 +4681,8 @@
   {
    "feeder": "XW37",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 111,
    "main_township": "斗南鎮",
@@ -4012,6 +4695,8 @@
   {
    "feeder": "XW38",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 384,
    "main_township": "斗南鎮",
@@ -4024,6 +4709,8 @@
   {
    "feeder": "XW39",
    "capacity_kw": 4884.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 40,
    "main_township": "斗南鎮",
@@ -4036,6 +4723,8 @@
   {
    "feeder": "XW40",
    "capacity_kw": 4208.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 80,
    "main_township": "斗南鎮",
@@ -4048,6 +4737,8 @@
   {
    "feeder": "XW61",
    "capacity_kw": 10875.1,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 27,
    "main_township": "斗南鎮",
@@ -4060,6 +4751,8 @@
   {
    "feeder": "XW62",
    "capacity_kw": 10655.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 16,
    "main_township": "斗南鎮",
@@ -4072,6 +4765,8 @@
   {
    "feeder": "XW63",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 0,
    "main_township": "",
@@ -4084,6 +4779,8 @@
   {
    "feeder": "XW65",
    "capacity_kw": 10000.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 3,
    "main_township": "虎尾鎮",
@@ -4096,6 +4793,8 @@
   {
    "feeder": "XW71",
    "capacity_kw": 6264.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 7,
    "main_township": "斗南鎮",
@@ -4108,6 +4807,8 @@
   {
    "feeder": "XW72",
    "capacity_kw": 10372.3,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 26,
    "main_township": "斗南鎮",
@@ -4120,6 +4821,8 @@
   {
    "feeder": "XW73",
    "capacity_kw": 0.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 0,
    "transformer_points": 0,
    "main_township": "",
@@ -4132,6 +4835,8 @@
   {
    "feeder": "XW75",
    "capacity_kw": 10627.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 22,
    "main_township": "虎尾鎮",
@@ -4144,6 +4849,8 @@
   {
    "feeder": "XX21",
    "capacity_kw": 708.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 107,
    "main_township": "口湖鄉",
@@ -4156,6 +4863,8 @@
   {
    "feeder": "XX22",
    "capacity_kw": 2341.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 74,
    "main_township": "口湖鄉",
@@ -4168,6 +4877,8 @@
   {
    "feeder": "XX23",
    "capacity_kw": 516.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 0,
    "main_township": "",
@@ -4180,6 +4891,8 @@
   {
    "feeder": "XX24",
    "capacity_kw": 5269.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 21,
    "main_township": "口湖鄉",
@@ -4192,6 +4905,8 @@
   {
    "feeder": "XX25",
    "capacity_kw": 4681.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 67,
    "main_township": "口湖鄉",
@@ -4204,6 +4919,8 @@
   {
    "feeder": "XX26",
    "capacity_kw": 2926.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 71,
    "main_township": "口湖鄉",
@@ -4216,6 +4933,8 @@
   {
    "feeder": "XX27",
    "capacity_kw": 4545.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 226,
    "main_township": "口湖鄉",
@@ -4228,6 +4947,8 @@
   {
    "feeder": "XX28",
    "capacity_kw": 1092.8,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 158,
    "main_township": "口湖鄉",
@@ -4240,6 +4961,8 @@
   {
    "feeder": "XX29",
    "capacity_kw": 706.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 1,
    "transformer_points": 48,
    "main_township": "口湖鄉",
@@ -4252,6 +4975,8 @@
   {
    "feeder": "XX30",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 82,
    "main_township": "口湖鄉",
@@ -4264,6 +4989,8 @@
   {
    "feeder": "XZ21",
    "capacity_kw": 3830.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 271,
    "main_township": "斗六市",
@@ -4276,6 +5003,8 @@
   {
    "feeder": "XZ22",
    "capacity_kw": 2270.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 192,
    "main_township": "斗六市",
@@ -4288,6 +5017,8 @@
   {
    "feeder": "XZ23",
    "capacity_kw": 5164.4,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 21,
    "main_township": "斗六市",
@@ -4300,6 +5031,8 @@
   {
    "feeder": "XZ24",
    "capacity_kw": 3410.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 118,
    "main_township": "斗六市",
@@ -4312,6 +5045,8 @@
   {
    "feeder": "XZ25",
    "capacity_kw": 5480.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 6,
    "main_township": "斗六市",
@@ -4324,6 +5059,8 @@
   {
    "feeder": "XZ36",
    "capacity_kw": 3682.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 40,
    "main_township": "斗六市",
@@ -4336,6 +5073,8 @@
   {
    "feeder": "XZ37",
    "capacity_kw": 5500.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 23,
    "main_township": "斗六市",
@@ -4348,6 +5087,8 @@
   {
    "feeder": "XZ38",
    "capacity_kw": 4863.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 45,
    "main_township": "斗六市",
@@ -4360,6 +5101,8 @@
   {
    "feeder": "XZ39",
    "capacity_kw": 2910.0,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 2,
    "transformer_points": 68,
    "main_township": "斗六市",
@@ -4372,6 +5115,8 @@
   {
    "feeder": "XZ40",
    "capacity_kw": 5326.9,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 3,
    "transformer_points": 31,
    "main_township": "斗六市",
@@ -4384,6 +5129,8 @@
   {
    "feeder": "XZ56",
    "capacity_kw": 10981.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 13,
    "main_township": "斗南鎮",
@@ -4396,6 +5143,8 @@
   {
    "feeder": "XZ57",
    "capacity_kw": 9778.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 55,
    "main_township": "斗六市",
@@ -4408,6 +5157,8 @@
   {
    "feeder": "XZ58",
    "capacity_kw": 7259.7,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 10,
    "main_township": "斗六市",
@@ -4420,6 +5171,8 @@
   {
    "feeder": "XZ59",
    "capacity_kw": 10509.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 48,
    "main_township": "斗六市",
@@ -4432,6 +5185,8 @@
   {
    "feeder": "XZ60",
    "capacity_kw": 10980.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 7,
    "main_township": "斗六市",
@@ -4444,6 +5199,8 @@
   {
    "feeder": "XZ61",
    "capacity_kw": 10689.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 2,
    "main_township": "斗南鎮",
@@ -4456,6 +5213,8 @@
   {
    "feeder": "XZ62",
    "capacity_kw": 9058.2,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 25,
    "main_township": "斗六市",
@@ -4468,6 +5227,8 @@
   {
    "feeder": "XZ63",
    "capacity_kw": 9607.6,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 8,
    "main_township": "斗六市",
@@ -4480,6 +5241,8 @@
   {
    "feeder": "XZ65",
    "capacity_kw": 10379.5,
+   "capacity_source": "S02",
+   "capacity_county": "",
    "class": 4,
    "transformer_points": 21,
    "main_township": "斗六市",
@@ -4492,6 +5255,8 @@
   {
    "feeder": "無",
    "capacity_kw": null,
+   "capacity_source": "",
+   "capacity_county": "",
    "class": -1,
    "transformer_points": 22,
    "main_township": "口湖鄉",
@@ -4499,7 +5264,7 @@
    "townships": "口湖鄉、麥寮鄉、斗六市、北港鎮、斗南鎮",
    "lon": 120.25284,
    "lat": 23.63651,
-   "flags": "no_capacity_row"
+   "flags": "feeder_code_none"
   }
  ],
  "history": [
@@ -4514,6 +5279,9 @@
    "capacity_member_sha256": "7e8d9b24d1d1241c9efbc385ceb35ea2617cb9be5da5a938c0ef6a459a102bce",
    "points_date": "2024-04-11",
    "points_member_sha256": "6889479b82c6e0df17af2bcf04e6b678c199f40c6ecc86767bf8ac3ca6b4cd3d",
+   "s01_snapshot_id": null,
+   "s01_archive_sha256": null,
+   "s01_archive_path": null,
    "stats": {
     "feeders_with_capacity": 340,
     "capacity_rows": 340,
@@ -4531,6 +5299,13 @@
     "feeders_in_points": 330,
     "points_without_capacity_feeder": 239,
     "feeders_no_capacity_row": 12,
+    "points_no_capacity_row": 239,
+    "feeders_other_county": 0,
+    "points_other_county": 0,
+    "points_feeder_code_none": 0,
+    "feeders_ambiguous_other_county": 0,
+    "national_codes_conflicting": 0,
+    "national_conflict_examples": [],
     "feeders_no_points": 22,
     "points_outside_county": 8,
     "class_counts": {
@@ -4539,6 +5314,26 @@
      "2": 25,
      "3": 90,
      "4": 75
+    },
+    "map": {
+     "feeders": 330,
+     "transformers": 35567,
+     "class_feeders": {
+      "0": 133,
+      "1": 16,
+      "2": 25,
+      "3": 85,
+      "4": 59,
+      "-1": 12
+     },
+     "class_transformers": {
+      "0": 25995,
+      "1": 1459,
+      "2": 2116,
+      "3": 4895,
+      "4": 863,
+      "-1": 239
+     }
     }
    }
   },
@@ -4553,6 +5348,9 @@
    "capacity_member_sha256": "c020a40f054a82b531ccf5047ec6a694ff21c34409c7ddf225864b36bc1e6cdb",
    "points_date": "2025-04-15",
    "points_member_sha256": "fabb3f8ecae3b7098c532b4665071bcbd78620c163f177809a27fb14f91179c8",
+   "s01_snapshot_id": "S01-2025-04-15",
+   "s01_archive_sha256": "5f7f1c727ad70503d0f45153bba7ea02c610622075557ac266bcdf09d844c197",
+   "s01_archive_path": "data/raw/S01/2025-04-15/001.zip",
    "stats": {
     "feeders_with_capacity": 339,
     "capacity_rows": 339,
@@ -4569,7 +5367,18 @@
     "transformer_points": 35906,
     "feeders_in_points": 327,
     "points_without_capacity_feeder": 551,
-    "feeders_no_capacity_row": 16,
+    "feeders_no_capacity_row": 6,
+    "points_no_capacity_row": 502,
+    "feeders_other_county": 9,
+    "points_other_county": 24,
+    "points_feeder_code_none": 25,
+    "feeders_ambiguous_other_county": 0,
+    "national_codes_conflicting": 6,
+    "national_conflict_examples": [
+     "CE34（基隆／臺北）",
+     "CV31（基隆／新北）",
+     "CV33（基隆／新北）"
+    ],
     "feeders_no_points": 28,
     "points_outside_county": 8,
     "class_counts": {
@@ -4578,6 +5387,26 @@
      "2": 33,
      "3": 73,
      "4": 74
+    },
+    "map": {
+     "feeders": 327,
+     "transformers": 35906,
+     "class_feeders": {
+      "0": 148,
+      "1": 14,
+      "2": 33,
+      "3": 67,
+      "4": 58,
+      "-1": 6
+     },
+     "class_transformers": {
+      "0": 26994,
+      "1": 979,
+      "2": 3214,
+      "3": 3314,
+      "4": 878,
+      "-1": 527
+     }
     }
    }
   },
@@ -4592,6 +5421,9 @@
    "capacity_member_sha256": "7f5dd295d56cb2585d9eafba737d1d1471b61d39fa01ebaedb07c9f662c99576",
    "points_date": "2026-04-27",
    "points_member_sha256": "59f765f518f821806f4081c4834dae480fd034a0c09bda11d50f03c0c77ef7d0",
+   "s01_snapshot_id": "S01-2026-04-27",
+   "s01_archive_sha256": "bba513ab4f5755983cd46e78a5772098afbb40a7954529e61a696b054a84a774",
+   "s01_archive_path": "data/raw/S01/2026-04-27/001.zip",
    "stats": {
     "feeders_with_capacity": 343,
     "capacity_rows": 343,
@@ -4608,7 +5440,14 @@
     "transformer_points": 36148,
     "feeders_in_points": 345,
     "points_without_capacity_feeder": 1453,
-    "feeders_no_capacity_row": 21,
+    "feeders_no_capacity_row": 11,
+    "points_no_capacity_row": 1406,
+    "feeders_other_county": 9,
+    "points_other_county": 25,
+    "points_feeder_code_none": 22,
+    "feeders_ambiguous_other_county": 0,
+    "national_codes_conflicting": 0,
+    "national_conflict_examples": [],
     "feeders_no_points": 19,
     "points_outside_county": 8,
     "class_counts": {
@@ -4617,6 +5456,26 @@
      "2": 46,
      "3": 92,
      "4": 79
+    },
+    "map": {
+     "feeders": 345,
+     "transformers": 36148,
+     "class_feeders": {
+      "0": 101,
+      "1": 28,
+      "2": 46,
+      "3": 93,
+      "4": 65,
+      "-1": 11
+     },
+     "class_transformers": {
+      "0": 19132,
+      "1": 3093,
+      "2": 5179,
+      "3": 6406,
+      "4": 910,
+      "-1": 1428
+     }
     }
    }
   }

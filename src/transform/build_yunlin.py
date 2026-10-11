@@ -63,6 +63,34 @@ CRS_CANDIDATES = {
     "epsg3828_ballpark": ("EPSG:3828 PROJ 預設（僅概略偏移）", lambda x, y: Transformer.from_crs("EPSG:3828", "EPSG:4326", always_xy=True).transform(x, y)),
 }
 LICENSE = {"name": "政府資料開放授權條款－第1版", "url": "https://data.gov.tw/license"}
+NO_CAPACITY_LABEL = "台電未列容量"
+FEEDER_CODE_NONE = "無"  # Taipower's own placeholder in tr_feeder.csv: transformer has no feeder assigned
+COUNTY_ZH = {
+    "CHANGHUA": "彰化", "CHIAYI": "嘉義", "HSINCHU": "新竹", "HUALIEN": "花蓮", "KAOHSIUNG": "高雄",
+    "KEELUNG": "基隆", "MIAOLI": "苗栗", "NANTOU": "南投", "NEWTAIPEI": "新北", "PINGTUNG": "屏東",
+    "TAICHUNG": "臺中", "TAINAN": "臺南", "TAIPEI": "臺北", "TAITUNG": "臺東", "TAOYUAN": "桃園",
+    "YILAN": "宜蘭", "YUNLIN": "雲林",
+}
+
+
+def other_county_capacity(s01_zip: Path) -> dict[str, list[tuple[str, float]]]:
+    """Feeder -> [(county code, kW), ...] from every non-Yunlin capacity table in the national S01 ZIP.
+
+    Border transformers in Yunlin are sometimes fed by a neighbouring county's
+    feeder; that feeder's capacity is published in the neighbour's table only.
+    Feeder codes are not unique nationwide (e.g. CV31 in both Keelung and New
+    Taipei with different values), so callers must check for conflicts.
+    """
+    out: dict[str, list[tuple[str, float]]] = {}
+    with zipfile.ZipFile(s01_zip) as z:
+        for name in z.namelist():
+            if not name.endswith("_capacity.csv") or name.startswith("schema-") or name.startswith("YUNLIN"):
+                continue
+            county = name.removesuffix("_capacity.csv")
+            frame = pd.read_csv(io.BytesIO(z.read(name)), encoding="utf-8-sig", dtype={"FEEDER": str})
+            for fid, kw in zip(frame.FEEDER.str.strip(), frame.CAPACITY):
+                out.setdefault(fid, []).append((county, float(kw)))
+    return out
 
 
 def classify(kw: float | None) -> int:
@@ -127,7 +155,7 @@ def crs_test(pts: pd.DataFrame, county: gpd.GeoSeries, land: gpd.GeoSeries) -> d
     return out
 
 
-def build_snapshot(row: pd.Series, towns: gpd.GeoDataFrame, crs: str) -> dict:
+def build_snapshot(row: pd.Series, towns: gpd.GeoDataFrame, crs: str, s01_row: pd.Series | None = None) -> dict:
     path = ROOT / row.archive_path
     cap, cap_date, cap_sha = read_member(path, "capacity")
     pts, pts_date, pts_sha = read_member(path, "tr_feeder")
@@ -137,14 +165,25 @@ def build_snapshot(row: pd.Series, towns: gpd.GeoDataFrame, crs: str) -> dict:
     g = to_points(pts, crs)
     g = gpd.sjoin(g, towns[["TOWNNAME", "geometry"]], how="left", predicate="within").drop(columns="index_right")
     capmap = dict(zip(cap.FEEDER, cap.CAPACITY))
+    # Neighbour-county values only from a national S01 file of the same file date.
+    neighbours = other_county_capacity(ROOT / s01_row.archive_path) if s01_row is not None else {}
 
     feeders = []
     for fid in sorted(set(cap.FEEDER) | set(g.FEEDER)):
         sub = g[g.FEEDER == fid]
         kw = capmap.get(fid)
+        source, county = ("S02", "") if kw is not None else ("", "")
         towns_ct = Counter(sub.TOWNNAME.fillna("（縣界外）"))
         flags = []
-        if kw is None:
+        if kw is None and fid == FEEDER_CODE_NONE:
+            flags.append("feeder_code_none")
+        elif kw is None and fid in neighbours and len({v for _, v in neighbours[fid]}) == 1:
+            county, kw = neighbours[fid][0][0], neighbours[fid][0][1]
+            source = "S01"
+            flags.append("capacity_from_other_county")
+        elif kw is None and fid in neighbours:
+            flags.append("ambiguous_other_county")
+        elif kw is None:
             flags.append("no_capacity_row")
         elif kw < 0:
             flags.append("negative_capacity")
@@ -158,6 +197,8 @@ def build_snapshot(row: pd.Series, towns: gpd.GeoDataFrame, crs: str) -> dict:
         feeders.append({
             "feeder": fid,
             "capacity_kw": None if kw is None else float(kw),
+            "capacity_source": source,
+            "capacity_county": COUNTY_ZH.get(county, county),
             "class": classify(kw),
             "transformer_points": int(len(sub)),
             "main_township": main,
@@ -186,9 +227,29 @@ def build_snapshot(row: pd.Series, towns: gpd.GeoDataFrame, crs: str) -> dict:
         "feeders_in_points": int(pts.FEEDER.nunique()),
         "points_without_capacity_feeder": int((~pts.FEEDER.isin(cap.FEEDER)).sum()),
         "feeders_no_capacity_row": sum("no_capacity_row" in f["flags"] for f in feeders),
+        "points_no_capacity_row": sum(f["transformer_points"] for f in feeders if "no_capacity_row" in f["flags"]),
+        "feeders_other_county": sum("capacity_from_other_county" in f["flags"] for f in feeders),
+        "points_other_county": sum(f["transformer_points"] for f in feeders if "capacity_from_other_county" in f["flags"]),
+        "points_feeder_code_none": int((pts.FEEDER == FEEDER_CODE_NONE).sum()),
+        "feeders_ambiguous_other_county": sum("ambiguous_other_county" in f["flags"] for f in feeders),
+        "national_codes_conflicting": sum(1 for v in neighbours.values() if len({kw for _, kw in v}) > 1),
+        "national_conflict_examples": [
+            f"{fid}（{'／'.join(COUNTY_ZH.get(c, c) for c, _ in v)}）"
+            for fid, v in sorted(neighbours.items()) if len({kw for _, kw in v}) > 1
+        ][:3],
         "feeders_no_points": sum("no_transformer_points" in f["flags"] for f in feeders),
         "points_outside_county": int(g.TOWNNAME.isna().sum()),
-        "class_counts": {c["id"]: sum(1 for f in feeders if f["class"] == c["id"]) for c in CLASSES},
+        # Basis: the Yunlin capacity table (S02) only — matches the KPI denominators.
+        "class_counts": {c["id"]: int(sum(classify(x) == c["id"] for x in v)) for c in CLASSES},
+    }
+    # Basis: what the map draws — feeders with at least one transformer, and the transformers themselves.
+    on_map = [f for f in feeders if f["transformer_points"] > 0]
+    ids = [c["id"] for c in CLASSES] + [NO_CAPACITY_CLASS]
+    stats["map"] = {
+        "feeders": len(on_map),
+        "transformers": int(len(pts)),
+        "class_feeders": {i: sum(1 for f in on_map if f["class"] == i and f["feeder"] != FEEDER_CODE_NONE) for i in ids},
+        "class_transformers": {i: sum(f["transformer_points"] for f in on_map if f["class"] == i) for i in ids},
     }
     return {
         "snapshot_id": row.snapshot_id,
@@ -201,6 +262,9 @@ def build_snapshot(row: pd.Series, towns: gpd.GeoDataFrame, crs: str) -> dict:
         "capacity_member_sha256": cap_sha,
         "points_date": pts_date,
         "points_member_sha256": pts_sha,
+        "s01_snapshot_id": s01_row.snapshot_id if s01_row is not None else None,
+        "s01_archive_sha256": s01_row.sha256 if s01_row is not None else None,
+        "s01_archive_path": s01_row.archive_path if s01_row is not None else None,
         "stats": stats,
         "feeders": feeders,
         "_points": g,
@@ -226,12 +290,14 @@ def cross_check(manifest: pd.DataFrame) -> list[dict]:
 
 def write_csv(path: Path, snap: dict, towns_meta: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    cols = ["feeder", "capacity_kw", "class", "class_label", "transformer_points", "main_township",
-            "main_township_share", "townships", "lon", "lat", "flags"]
-    labels = {c["id"]: c["label"] for c in CLASSES} | {NO_CAPACITY_CLASS: "無容量列"}
+    cols = ["feeder", "capacity_kw", "capacity_source", "capacity_county", "class", "class_label", "transformer_points",
+            "main_township", "main_township_share", "townships", "lon", "lat", "flags"]
+    labels = {c["id"]: c["label"] for c in CLASSES} | {NO_CAPACITY_CLASS: NO_CAPACITY_LABEL}
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         f.write(f"# 雲林縣配電饋線公布可併網容量｜台電容量表日期 {snap['capacity_date']}｜原始檔 SHA-256 {snap['archive_sha256']}\n")
         f.write(f"# 來源：台灣電力公司，政府資料開放平臺 {towns_meta['s02_page']}，{LICENSE['name']} {LICENSE['url']}\n")
+        if snap["s01_snapshot_id"]:
+            f.write(f"# capacity_source=S01：鄰縣饋線，容量取自同日全國檔 {towns_meta['s01_page']}（SHA-256 {snap['s01_archive_sha256']}）\n")
         f.write(f"# 衍生欄位（class、鄉鎮、經緯度）為本專案計算，方法版本 {METHOD_VERSION}。容量不可跨饋線加總。\n")
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
@@ -253,8 +319,8 @@ def write_points(path: Path, snap: dict, classes: dict[str, int]) -> None:
 def feeder_stability(snaps: list[dict]) -> list[dict]:
     out = []
     for a, b in zip(snaps, snaps[1:]):
-        fa = {f["feeder"] for f in a["feeders"] if f["capacity_kw"] is not None}
-        fb = {f["feeder"] for f in b["feeders"] if f["capacity_kw"] is not None}
+        fa = {f["feeder"] for f in a["feeders"] if f["capacity_source"] == "S02"}
+        fb = {f["feeder"] for f in b["feeders"] if f["capacity_source"] == "S02"}
         out.append({"from": a["capacity_date"], "to": b["capacity_date"], "common": len(fa & fb),
                     "only_from": len(fa - fb), "only_to": len(fb - fa)})
     return out
@@ -265,13 +331,19 @@ def main() -> None:
     towns, land, towns_meta = load_townships(manifest)
     s02 = manifest[manifest.source_id == "S02"].sort_values("file_date")
     towns_meta["s02_page"] = s02.iloc[-1].dataset_page
+    s01 = manifest[manifest.source_id == "S01"]
+    towns_meta["s01_page"] = s01.iloc[-1].dataset_page
 
     latest_pts, _, _ = read_member(ROOT / s02.iloc[-1].archive_path, "tr_feeder")
     crs_result = crs_test(latest_pts, towns.geometry, land.geometry)
     crs = min(crs_result, key=lambda k: (crs_result[k]["off_land_points"], -crs_result[k]["inside_county"]))
     assert crs.startswith("twd67"), f"CRS test picked {crs}; review before publishing"
 
-    snaps = [build_snapshot(r, towns, crs) for _, r in s02.iterrows()]
+    def same_day_s01(r: pd.Series) -> pd.Series | None:
+        twin = s01[s01.file_date == r.file_date]
+        return twin.iloc[0] if len(twin) else None
+
+    snaps = [build_snapshot(r, towns, crs, same_day_s01(r)) for _, r in s02.iterrows()]
     latest = snaps[-1]
     checks = cross_check(manifest)
     stability = feeder_stability(snaps)
@@ -303,6 +375,8 @@ def main() -> None:
             "S02": {"title": "台灣電力公司雲林縣再生能源可併網容量", "publisher": "台灣電力公司",
                     "dataset_page": s02.iloc[-1].dataset_page, "source_url": s02.iloc[-1].source_url,
                     "declared_frequency": "每 6 月（平臺頁面標示）"},
+            "S01": {"title": "台灣電力公司全國各縣市再生能源可併網容量", "publisher": "台灣電力公司",
+                    "dataset_page": s01.iloc[-1].dataset_page, "source_url": s01.iloc[-1].source_url},
             "S12": {"title": "鄉鎮市區界線(TWD97經緯度)", "publisher": "內政部國土測繪中心", **towns_meta},
         },
         "classes": CLASSES,
@@ -368,8 +442,23 @@ def write_audit(s: dict) -> None:
         f"- 饋線容量列 {st['capacity_rows']} 筆、不重複饋線 {st['feeders_with_capacity']} 條；負值 {st['negatives']} 筆。",
         f"- 公布容量為 0：{st['zero']} 條（{pct(st['zero_share'])}）；未滿 1 MW：{st['under_1mw']} 條（{pct(st['under_1mw_share'])}）。",
         f"- 中位數 {st['median_kw']:,} kW（四分位 {st['p25_kw']:,}–{st['p75_kw']:,} kW）；最大值 {st['max_kw']:,} kW，共 {st['count_at_max']} 條等於最大值（疑似上限值，待向台電確認）。",
-        f"- 變壓器點位 {st['transformer_points']:,} 個，分屬 {st['feeders_in_points']} 條饋線；落在縣界外 {st['points_outside_county']} 個。",
-        f"- 有點位但無容量列的饋線 {st['feeders_no_capacity_row']} 條（{st['points_without_capacity_feeder']:,} 個點）；有容量列但無點位的饋線 {st['feeders_no_points']} 條。",
+        f"- 變壓器點位 {st['transformer_points']:,} 個，分屬 {st['feeders_in_points']} 個饋線代號；落在縣界外 {st['points_outside_county']} 個。",
+        f"- 點位表有、雲林容量表沒有的變壓器共 {st['points_without_capacity_feeder']:,} 個，分三種：",
+        f"  - 鄰縣饋線 {st['feeders_other_county']} 條（{st['points_other_county']:,} 個點）：容量見同日全國檔（S01）其他縣市容量表，本站取用並標示來源。"
+        if L["s01_snapshot_id"] else "  - 鄰縣饋線：本版無同日全國檔，未補值。",
+        f"  - 雲林代號但兩表皆無 {st['feeders_no_capacity_row']} 條（{st['points_no_capacity_row']:,} 個點）：標為「{NO_CAPACITY_LABEL}」，成因待確認。",
+        f"  - 所屬饋線欄位為「{FEEDER_CODE_NONE}」：{st['points_feeder_code_none']} 個點。",
+        f"  - 代號在多個鄰縣容量表出現且數值不同、因此不補值：{st['feeders_ambiguous_other_county']} 條。",
+        (f"- 同日全國檔中，同一饋線代號在多個縣市容量表出現且數值不同者：{st['national_codes_conflicting']} 個"
+         + (f"（例：{'、'.join(st['national_conflict_examples'])}）" if st["national_conflict_examples"] else "")
+         + "。")
+        if L["s01_snapshot_id"] else "",
+        *[
+            f"- {h['s01_snapshot_id']} 全國檔有 {h['stats']['national_codes_conflicting']} 個代號在多縣數值不同"
+            f"（例：{'、'.join(h['stats']['national_conflict_examples'])}）：饋線代號不保證全國唯一，跨縣比對須連同縣市判斷。"
+            for h in s["history"] if h["stats"].get("national_codes_conflicting")
+        ],
+        f"- 雲林容量表有、點位表沒有的饋線 {st['feeders_no_points']} 條（地圖上無法定位，只列在饋線清單）。",
         "",
         "## 5. 全國檔（S01）與雲林檔（S02）交叉比對",
         "",
@@ -384,7 +473,7 @@ def write_audit(s: dict) -> None:
         "## 7. 未決問題（P0）",
         "",
         "1. 容量計算條件、日期與上限值的官方定義。",
-        "2. 無容量列饋線與無點位饋線的成因（鄰縣饋線、停用、改名？）。",
+        f"2. 雲林代號但兩表皆無的 {st['feeders_no_capacity_row']} 條饋線，與有容量但無點位的 {st['feeders_no_points']} 條饋線，是否有對應關係（新設、改名或停用）。",
         "3. 檔案日期（ZIP 成員修改時間）與台電實際計算基準日的關係。",
     ]
     AUDIT.parent.mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>方法與資料｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="資料來源、存檔版本、座標處理、分級方式與限制說明。">
-<link rel="stylesheet" href="style.css?v=0.1.0-5">
+<link rel="stylesheet" href="style.css?v=0.1.1">
 <style>
   .doc { max-width: 860px; }
   .doc h2 { font-size: 19px; margin: 36px 0 8px; padding-top: 4px; }
@@ -74,15 +74,19 @@
     <tbody></tbody>
   </table></div>
   <h3>S02 檔案結構</h3>
-  <p>台電的 ZIP 內有兩張表：<code>YUNLIN_capacity.csv</code>（饋線代號、饋線可併網容量，單位千瓦）與 <code>YUNLIN_tr_feeder.csv</code>（變壓器 TWD67 座標與所屬饋線）。CSV 內沒有資料日期欄位，本站以 ZIP 內檔案的修改日期作為「檔案日期」，容量表與點位表分別記錄。全國檔（S01）中的雲林資料與雲林檔（S02）逐位元組相同（見下表檢查）。</p>
+  <p>台電的 ZIP 內有兩張表：<code>YUNLIN_capacity.csv</code>（饋線代號、饋線可併網容量，單位千瓦）與 <code>YUNLIN_tr_feeder.csv</code>（變壓器 TWD67 座標與所屬饋線）。CSV 內沒有資料日期欄位，本站以 ZIP 內檔案的修改日期作為「檔案日期」，容量表與變壓器位置表分別記錄。全國檔（S01）中的雲林資料與雲林檔（S02）逐位元組相同（見下表檢查）。</p>
   <ul id="xcheck"></ul>
+  <h3>位置表有、雲林容量表沒有的變壓器</h3>
+  <p>兩張表的饋線大多對得上，對不上的變壓器分成三種（最新版數字）：</p>
+  <ul id="gap-list"></ul>
+  <p>鄰縣饋線的容量只取自<b>同一天</b>的全國檔；沒有同日全國檔的版本不補值。全國檔中曾有同一代號在兩個縣市數值不同的情形，所以只有在各縣數值一致時才採用，不一致就不補。</p>
 
   <h2 id="classes">4. 分級方式</h2>
-  <p>本站使用固定級距：<b>0／未滿 1 MW／1–3 MW／3–6 MW／6 MW 以上</b>，另將「點位表有、容量表未列」的饋線標為「無容量列」。這<b>不是</b>台電 FGIS 的六級分色（FGIS 的級距未以文字公開）。採用固定級距而非分位數，是為了讓不同版本可以用同一把尺比較。顏色：0 用橘色標示為獨立狀態；其餘為單一藍色漸層，越深代表公布容量越高。刻意不用紅色，以免暗示「無法併網」。</p>
+  <p>本站使用固定級距：<b>0／未滿 1 MW／1–3 MW／3–6 MW／6 MW 以上</b>，另將台電雲林與全國容量表都沒有列出的饋線標為「台電未列容量」（灰色空心圈）。這<b>不是</b>台電 FGIS 的六級分色（FGIS 的級距未以文字公開）。採用固定級距而非分位數，是為了讓不同版本可以用同一把尺比較。顏色：0 用橘色標示為獨立狀態；其餘為單一藍色漸層，越深代表公布容量越高。刻意不用紅色，以免暗示「無法併網」。</p>
   <p id="cap-note"></p>
 
   <h2 id="crs">5. 座標處理</h2>
-  <p>台電標示座標為 TWD67。PROJ 對 EPSG:3828 的預設轉換只做概略偏移，沒有基準轉換，會讓所有點位系統性偏移約 850 公尺。本站以「變壓器必在陸地上」為判準，比較四種轉換：</p>
+  <p>台電標示座標為 TWD67。PROJ 對 EPSG:3828 的預設轉換只做概略偏移，沒有基準轉換，會讓所有變壓器位置系統性偏移約 850 公尺。本站以「變壓器必在陸地上」為判準，比較四種轉換：</p>
   <div class="table-scroll"><table class="data" id="crs-table">
     <thead><tr><th>轉換方式</th><th class="num">落在雲林縣界內</th><th class="num">落在陸域外</th><th class="num">陸域外逾 100 m</th><th class="num">與採用方案差距</th></tr></thead>
     <tbody></tbody>
@@ -105,8 +109,9 @@
     <li>容量的計算條件、基準日與上限值未公開說明。最新版有多條饋線剛好等於最大值，疑似為上限值，待向台電確認。</li>
     <li>檔案日期取自 ZIP 內檔案修改時間，與台電實際計算基準日的關係未確認。</li>
     <li>平臺頁面標示每 6 個月更新；已取得的版本間隔約一年，中間可能有未被保存的版本。</li>
-    <li>部分饋線只出現在點位表或只出現在容量表，成因待查（可能為鄰縣饋線或代號差異）。</li>
-    <li>鄉鎮歸屬依變壓器點位多數所在鄉鎮計算；一條饋線可能跨多個鄉鎮。</li>
+    <li>有雲林代號、卻在雲林與全國容量表都找不到的饋線，以及有容量卻沒有變壓器位置的饋線，兩者是否對應（新設、改名或停用）待向台電確認。</li>
+    <li>鄉鎮歸屬依多數變壓器所在鄉鎮計算；一條饋線可能跨多個鄉鎮。</li>
+    <li>饋線代號不保證全國唯一；跨縣比對須連同縣市一起判斷。</li>
     <li>等待併網數字只有區處層級的單一時間點（截至 2025-06-30）；立法院報告表列 7 個區處，未說明其他區處情形。前一年度報告的同類表格口徑不同（含全部再生能源），不可直接比較。</li>
   </ul>
 
@@ -124,7 +129,7 @@
 
 <footer class="site-foot"><div class="wrap"><p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。<a href="./">回到現況地圖</a></p></div></footer>
 
-<script src="config.js?v=0.1.0-5"></script>
+<script src="config.js?v=0.1.1"></script>
 <script>
 (async () => {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -141,14 +146,19 @@
   document.getElementById("dates").innerHTML = `方法版本 ${esc(S.method_version)}・台電容量表日期 <b>${esc(L.capacity_date)}</b>・本站最後檢查來源 <b>${esc((S.source_last_checked || "").slice(0, 10))}</b>`;
 
   const snaps = [
-    ...S.history.map((h) => ({ id: h.snapshot_id, src: "S02 台電雲林縣再生能源可併網容量", origin: h.origin, date: `容量表 ${h.capacity_date}／點位表 ${h.points_date}`, basis: "zip_member_mtime", sha: h.archive_sha256, path: h.archive_path })),
+    ...S.history.map((h) => ({ id: h.snapshot_id, src: "S02 台電雲林縣再生能源可併網容量", origin: h.origin, date: `容量表 ${h.capacity_date}／位置表 ${h.points_date}`, basis: "zip_member_mtime", sha: h.archive_sha256, path: h.archive_path })),
     { id: S.sources.S12.snapshot_id, src: "S12 鄉鎮市區界線（TWD97 經緯度）", origin: "publisher_live", date: S.sources.S12.snapshot_id.slice(4), basis: "zip_member_mtime", sha: S.sources.S12.sha256, path: `data/raw/S12/${S.sources.S12.snapshot_id.slice(4)}/township_1140318.zip` },
     ...(Q ? [{ id: `S04-2025-09-16`, src: "S04 立法院預算中心 115 年度總預算案整體評估報告（一二）", origin: "publisher_live", date: "2025-09-16", basis: "pdf_creation_date", sha: Q.archive_sha256, path: Q.archive_path }] : []),
   ];
   document.querySelector("#snap-table tbody").innerHTML = snaps.map((s) => `<tr><td>${esc(s.id)}</td><td>${esc(s.src)}</td><td>${esc(origin[s.origin] || s.origin)}</td><td>${esc(s.date)}</td><td>${esc(basis[s.basis])}</td><td><code title="${esc(s.sha)}">${esc(s.sha.slice(0, 16))}…</code> ${link(s.path)}</td></tr>`).join("");
 
-  document.getElementById("xcheck").innerHTML = S.s01_s02_cross_check.map((c) => `<li>${esc(c.file_date)}：容量表 ${c.capacity === "identical" ? "相同" : esc(c.capacity)}；點位表 ${c.tr_feeder === "identical" ? "相同" : esc(c.tr_feeder)}</li>`).join("");
+  document.getElementById("xcheck").innerHTML = S.s01_s02_cross_check.map((c) => `<li>${esc(c.file_date)}：容量表 ${c.capacity === "identical" ? "相同" : esc(c.capacity)}；位置表 ${c.tr_feeder === "identical" ? "相同" : esc(c.tr_feeder)}</li>`).join("");
   const st = L.stats;
+  document.getElementById("gap-list").innerHTML = [
+    `<li><b>鄰縣饋線</b> ${fmt(st.feeders_other_county)} 條（${fmt(st.points_other_county)} 具變壓器）：雲林縣界附近有少數變壓器由嘉義、南投等鄰縣的饋線供電，容量寫在鄰縣的表。本站從同日全國檔取值，並在資訊卡與 CSV 標示來源。</li>`,
+    `<li><b>台電未列容量</b> ${fmt(st.feeders_no_capacity_row)} 條（${fmt(st.points_no_capacity_row)} 具）：代號是雲林的，但雲林與全國容量表都沒有；成因待確認。</li>`,
+    `<li><b>未標饋線</b> ${fmt(st.points_feeder_code_none)} 具：台電位置表中所屬饋線欄位寫「無」。</li>`,
+  ].join("");
   document.getElementById("cap-note").textContent = `最新版（容量表 ${L.capacity_date}）：最小值 0、中位數 ${fmt(st.median_kw)} kW、四分位 ${fmt(st.p25_kw)}–${fmt(st.p75_kw)} kW、最大值 ${fmt(st.max_kw)} kW（共 ${st.count_at_max} 條等於最大值）；負值 ${st.negatives} 筆。`;
 
   document.querySelector("#crs-table tbody").innerHTML = Object.entries(S.crs.tests).map(([k, v]) => `<tr${k === S.crs.chosen ? ' style="font-weight:600"' : ""}><td style="white-space:normal">${esc(v.name)}${k === S.crs.chosen ? "（採用）" : ""}</td><td class="num">${(v.inside_county * 100).toFixed(2)}%</td><td class="num">${fmt(v.off_land_points)}</td><td class="num">${fmt(v.off_land_over_100m)}</td><td class="num">${fmt(v.mean_offset_from_towgs84_m, 1)} m</td></tr>`).join("");

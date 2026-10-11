@@ -6,7 +6,7 @@
 <title>雲林饋線容量現況｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="雲林縣配電饋線的台電公布可併網容量現況地圖。每個數字附資料日期、來源與存檔雜湊，可直接引用。">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<link rel="stylesheet" href="style.css?v=0.1.0-5">
+<link rel="stylesheet" href="style.css?v=0.1.1-1">
 </head>
 <body>
 <a class="skip" href="#feeder-table">跳到饋線清單</a>
@@ -34,7 +34,7 @@
 
   <section class="wrap explore" aria-label="地圖">
     <div class="map-col">
-      <div id="map" role="region" aria-label="雲林縣變壓器點位地圖，依所屬饋線的公布可併網容量著色"></div>
+      <div id="map" role="region" aria-label="雲林縣變壓器位置地圖，依所屬饋線的公布可併網容量著色"></div>
       <p class="map-note">每個點是一具變壓器（台電公布座標），顏色是它<strong>所屬饋線</strong>的公布可併網容量；點本身沒有容量。地圖不畫線路走向，因為公開資料沒有提供。</p>
     </div>
     <aside class="panel" id="panel" aria-live="polite">
@@ -52,7 +52,7 @@
   <section class="wrap block" aria-labelledby="town-h">
     <div class="block-head">
       <h2 id="town-h">各鄉鎮的饋線組成 <span class="tag" data-tag="derived">計算</span></h2>
-      <p class="block-sub">饋線依其變壓器點位多數所在的鄉鎮歸屬；一條饋線可能跨鄉鎮。這裡只數饋線條數，不加總容量。</p>
+      <p class="block-sub">只計雲林容量表上的饋線，依其多數變壓器所在的鄉鎮歸屬；一條饋線可能跨鄉鎮。這裡只數饋線條數，不加總容量。</p>
     </div>
     <div class="table-scroll">
       <table class="data town-table" id="town-table">
@@ -71,7 +71,7 @@
   <section class="wrap block" id="feeder-table" aria-labelledby="feeder-h">
     <div class="block-head">
       <h2 id="feeder-h">饋線清單 <span class="tag" data-tag="observed">事實</span></h2>
-      <p class="block-sub">容量為台電原始值（千瓦）；鄉鎮、級距為本專案計算。點選一列可在地圖上定位。</p>
+      <p class="block-sub">容量為台電原始值（千瓦）；鄉鎮、級距為本專案計算。代號下方標縣名者為鄰縣饋線，容量取自台電全國檔。點選一列可在地圖上定位。</p>
     </div>
     <div class="table-tools">
       <label class="field">
@@ -125,7 +125,7 @@
 </footer>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="config.js?v=0.1.0-5"></script>
-<script src="app.js?v=0.1.0-5"></script>
+<script src="config.js?v=0.1.1-1"></script>
+<script src="app.js?v=0.1.1-1"></script>
 </body>
 </html>

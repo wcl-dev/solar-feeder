@@ -4,10 +4,15 @@
   const CFG = window.SITE_CONFIG || {};
   const COLORS = { "-1": "#898781", 0: "#eb6834", 1: "#86b6ef", 2: "#3987e5", 3: "#256abf", 4: "#104281" };
   const NO_CAP = -1;
+  const NO_CAP_LABEL = "台電未列容量";
+  const CODE_NONE = "無"; // Taipower's placeholder: transformer with no feeder assigned
   const FLAG_TEXT = {
-    no_capacity_row: "台電容量表沒有列出這條饋線（只有變壓器點位）",
-    no_transformer_points: "台電點位表沒有這條饋線的變壓器，地圖上無法定位",
-    points_outside_county: "部分變壓器點位落在雲林縣界外",
+    no_capacity_row: "台電雲林與全國容量表都沒有列出這條饋線",
+    no_transformer_points: "台電變壓器位置表沒有這條饋線，地圖上無法定位",
+    points_outside_county: "部分變壓器落在雲林縣界外",
+    capacity_from_other_county: "鄰縣饋線：容量取自台電全國檔中鄰縣的容量表",
+    ambiguous_other_county: "代號在多個鄰縣容量表出現且數值不同，未補值",
+    feeder_code_none: "台電變壓器位置表中，這些變壓器的所屬饋線寫「無」",
     negative_capacity: "原始容量為負值",
     duplicate_capacity_row: "容量表中重複出現",
   };
@@ -34,8 +39,9 @@
 
   const pageUrl = () => CFG.siteUrl || location.href.split("#")[0];
   const csvPath = () => `data/download/yunlin_feeders_${L.capacity_date}.csv`;
-  const archiveUrl = () => (CFG.repoUrl ? `${CFG.repoUrl}/blob/${CFG.repoBranch || "main"}/${L.archive_path}` : null);
-  const classLabel = (c) => (c === NO_CAP ? "無容量列" : classes.find((k) => k.id === c).label);
+  const archiveUrl = (path = L.archive_path) => (CFG.repoUrl ? `${CFG.repoUrl}/blob/${CFG.repoBranch || "main"}/${path}` : null);
+  const classLabel = (c) => (c === NO_CAP ? NO_CAP_LABEL : classes.find((k) => k.id === c).label);
+  const feederName = (id) => (id === CODE_NONE ? "（未標饋線）" : id);
 
   async function load() {
     const get = (u) => fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`))));
@@ -49,15 +55,14 @@
     L = S.latest;
     feeders = S.feeders;
     byId = Object.fromEntries(feeders.map((f) => [f.feeder, f]));
-    classes = S.classes.map((c) => ({ ...c, count: L.stats.class_counts[c.id] ?? 0 }));
-    const nNoCap = feeders.filter((f) => f.class === NO_CAP).length;
-    if (nNoCap) classes.push({ id: NO_CAP, label: "無容量列", count: nNoCap });
+    // Legend basis = what the map draws (feeders with transformers in Yunlin, incl. neighbour-county feeders).
+    const M = L.stats.map;
+    classes = [...S.classes, { id: NO_CAP, label: NO_CAP_LABEL }].map((c) => ({
+      ...c, count: M.class_feeders[c.id] ?? 0, points: M.class_transformers[c.id] ?? 0,
+    })).filter((c) => c.id !== NO_CAP || c.points > 0);
     classes.forEach((c) => active.add(c.id));
 
-    for (const c of classes) c.points = 0;
-    const byClass = Object.fromEntries(classes.map((c) => [c.id, c]));
     for (const ft of tx.features) {
-      if (byClass[ft.properties.c]) byClass[ft.properties.c].points++;
       const [x, y] = ft.geometry.coordinates;
       const b = (bounds[ft.properties.f] ||= [x, y, x, y]);
       b[0] = Math.min(b[0], x); b[1] = Math.min(b[1], y); b[2] = Math.max(b[2], x); b[3] = Math.max(b[3], y);
@@ -87,9 +92,9 @@
     const hist = S.history.map((h) => `<span>${h.capacity_date.slice(0, 7)}</span><b>${pct(h.stats.zero_share)}</b>`).join("");
     $("#kpis").innerHTML = `
       <div class="tile">
-        <p class="tile-label">容量表列出的饋線 ${tag("observed")}</p>
+        <p class="tile-label">雲林容量表列出的饋線 ${tag("observed")}</p>
         <p class="tile-value">${fmt(st.feeders_with_capacity)}<small>條</small></p>
-        <p class="tile-foot">變壓器點位 ${fmt(st.transformer_points)} 個</p>
+        <p class="tile-foot">變壓器 ${fmt(st.transformer_points)} 具（台電變壓器位置表）</p>
       </div>
       <div class="tile">
         <p class="tile-label">${swatch(0)}公布可併網容量為 0 ${tag("derived")}</p>
@@ -109,17 +114,18 @@
   }
 
   function renderLegend() {
-    const total = feeders.length;
-    const totalPts = classes.reduce((a, c) => a + c.points, 0);
-    const sub = { 0: "台電公布值為 0", [NO_CAP]: "只有點位、容量表未列" };
+    const M = L.stats.map;
+    const total = classes.reduce((a, c) => a + c.count, 0);
+    const totalPts = M.transformers;
+    const sub = { 0: "台電公布值為 0", [NO_CAP]: "雲林與全國容量表都沒有" };
     $("#legend").innerHTML = classes.map((c) => `
       <li><button type="button" aria-pressed="true" data-class="${c.id}">
         ${swatch(c.id)}
         <span class="lab">${esc(c.label)}${sub[c.id] ? `<small>${sub[c.id]}</small>` : ""}</span>
-        <span class="cnt">${fmt(c.count)} 條<small>點位 ${pct(c.points / totalPts)}</small></span>
-        <span class="bar" aria-hidden="true"><i style="width:${(c.count / total) * 100}%;background:${COLORS[c.id]}"></i></span>
+        <span class="cnt">${fmt(c.count)} 條<small>變壓器 ${pct(c.points / totalPts)}</small></span>
+        <span class="bar" aria-hidden="true"><i style="width:${(c.points / totalPts) * 100}%;background:${COLORS[c.id]}"></i></span>
       </button></li>`).join("") +
-      `<li class="legend-note">條數是饋線數；地圖上的點是變壓器。公布為 0 的饋線占容量表饋線的 ${pct(L.stats.zero_share)}，但這些饋線的變壓器較多，占地圖所有點位的 ${pct(byClassPts(0, totalPts))}，所以橘色在地圖上看起來比條數比例多。</li>` +
+      `<li class="legend-note">地圖上的每個點是一具變壓器，顏色是它所屬饋線的公布容量。公布為 0 的多是長饋線、變壓器多：它們占雲林容量表饋線的 ${pct(L.stats.zero_share)}，卻占地圖上變壓器的 ${pct(byClassPts(0, totalPts))}，所以橘色看起來比條數比例多。<br>條數以地圖上的 ${fmt(total)} 條饋線計，含 ${fmt(L.stats.feeders_other_county)} 條供電到雲林的鄰縣饋線，不含 ${fmt(L.stats.feeders_no_points)} 條沒有位置資料的饋線。</li>` +
       `<li class="legend-actions"><button type="button" id="legend-all">全部顯示</button>・<button type="button" id="legend-zero">只看公布為 0</button></li>`;
     $("#legend").addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -165,7 +171,7 @@
 
   function renderTowns(towns) {
     const rows = towns.features.map((t) => t.properties.name).map((name) => {
-      const fs = feeders.filter((f) => f.main_township === name && f.capacity_kw != null);
+      const fs = feeders.filter((f) => f.main_township === name && f.capacity_source === "S02");
       const vals = fs.map((f) => f.capacity_kw).sort((a, b) => a - b);
       const mid = vals.length ? (vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2) : null;
       const zero = fs.filter((f) => f.capacity_kw <= 0).length;
@@ -216,7 +222,7 @@
     $$("#feeders thead button").forEach((b) => (b.dataset.dir = b.dataset.sort === key ? dir : ""));
     $("#feeders tbody").innerHTML = rows.map((f) => `
       <tr data-id="${esc(f.feeder)}" aria-selected="${f.feeder === selected}">
-        <td><b>${esc(f.feeder)}</b></td>
+        <td><b>${esc(feederName(f.feeder))}</b>${f.capacity_source === "S01" ? `<small class="src-note">${esc(f.capacity_county)}</small>` : ""}</td>
         <td class="num">${fmt(f.capacity_kw, 1)}</td>
         <td><span class="cls">${swatch(f.class)}${esc(classLabel(f.class))}</span></td>
         <td>${esc(f.main_township || "—")}</td>
@@ -228,11 +234,15 @@
 
   function dataCitation(feederId) {
     const year = L.capacity_date.slice(0, 4);
-    const src = S.sources.S02;
-    const arch = archiveUrl();
+    const f = feederId ? byId[feederId] : null;
+    const national = f && f.capacity_source === "S01";
+    const src = national ? S.sources.S01 : S.sources.S02;
+    const snap = national ? L.s01_snapshot_id : L.snapshot_id;
+    const sha = national ? L.s01_archive_sha256 : L.archive_sha256;
+    const arch = archiveUrl(national ? L.s01_archive_path : L.archive_path);
     return `${src.publisher}（${year}）。${src.title}［資料集；容量表檔案日期 ${L.capacity_date}］。政府資料開放平臺，${src.dataset_page}。` +
-      (feederId ? `饋線 ${feederId}。` : "") +
-      `本站存檔版本 ${L.snapshot_id}，SHA-256 ${L.archive_sha256}${arch ? `，${arch}` : ""}。` +
+      (feederId ? `${national ? `${f.capacity_county}容量表，` : ""}饋線 ${feederName(feederId)}。` : "") +
+      `本站存檔版本 ${snap}，SHA-256 ${sha}${arch ? `，${arch}` : ""}。` +
       (feederId ? `檢視頁面：${pageUrl()}#feeder=${encodeURIComponent(feederId)}。` : "") +
       `取用日期 ${today()}。`;
   }
@@ -256,31 +266,38 @@
 
   function cardHtml(f) {
     const zero = f.capacity_kw != null && f.capacity_kw <= 0;
-    const flags = f.flags ? f.flags.split(";") : [];
-    const arch = archiveUrl();
-    const callout = f.capacity_kw == null
-      ? `<b>這條饋線沒有公布容量。</b>台電點位表列有它的變壓器，但容量表未列；原因待查（可能是鄰縣饋線或代號差異）。`
+    // These three are already explained by the card's own rows and callout.
+    const explained = new Set(["capacity_from_other_county", "no_capacity_row", "feeder_code_none"]);
+    const flags = (f.flags ? f.flags.split(";") : []).filter((x) => !explained.has(x));
+    const national = f.capacity_source === "S01";
+    const arch = archiveUrl(national ? L.s01_archive_path : L.archive_path);
+    const sha = national ? L.s01_archive_sha256 : L.archive_sha256;
+    const callout = f.feeder === CODE_NONE
+      ? `<b>這些變壓器沒有標所屬饋線。</b>台電變壓器位置表中，它們的「所屬饋線」欄位寫「無」，所以無法對應到任何容量。`
+      : f.capacity_kw == null
+      ? `<b>台電沒有公布這條饋線的容量。</b>它的變壓器在台電的位置表裡，但雲林與全國的容量表都沒有列出；原因尚待向台電確認。`
       : zero
         ? `<b>公布值為 0，不等於無法併網。</b>這是台電在特定日期與計算條件下的參考值；實際能否併網須經台電個案審查，也受案件順序、上游變電設備等影響。`
         : `<b>這是參考值，不是保證。</b>實際可併容量會隨新案件扣減，也受上游變電設備限制；不可與其他饋線的數字加總。`;
     return `
       <div class="card-head">
-        <h2>饋線 ${esc(f.feeder)}</h2>
+        <h2>${f.feeder === CODE_NONE ? "未標饋線的變壓器" : `饋線 ${esc(f.feeder)}`}</h2>
         <button class="close" type="button" id="card-close" aria-label="關閉饋線資訊，回到圖例">✕ 回到圖例</button>
       </div>
       <p class="big">${f.capacity_kw == null ? "—" : fmt(f.capacity_kw, 1)}<small>kW</small></p>
       <div class="class-chip">${swatch(f.class)}級距：${esc(classLabel(f.class))} ${tag("observed")}</div>
       <dl class="meta">
         <dt>資料日期</dt><dd>台電容量表 ${esc(L.capacity_date)}</dd>
+        ${national ? `<dt>容量來源</dt><dd style="white-space:normal">鄰縣饋線：取自台電全國檔的${esc(f.capacity_county)}容量表（雲林檔未列）</dd>` : ""}
         <dt>電網層級</dt><dd>配電饋線</dd>
-        <dt>變壓器點位</dt><dd>${fmt(f.transformer_points)} 個（點位表 ${esc(L.points_date)}）</dd>
-        <dt>主要鄉鎮</dt><dd>${f.main_township ? `${esc(f.main_township)}（${pct(f.main_township_share)}的點位）` : "—"} ${tag("derived")}</dd>
+        <dt>雲林境內變壓器</dt><dd>${fmt(f.transformer_points)} 具（位置表 ${esc(L.points_date)}）</dd>
+        <dt>主要鄉鎮</dt><dd>${f.main_township ? `${esc(f.main_township)}（${pct(f.main_township_share)}的變壓器）` : "—"} ${tag("derived")}</dd>
         ${f.townships && f.townships.includes("、") ? `<dt>涵蓋鄉鎮</dt><dd style="white-space:normal">${esc(f.townships)}</dd>` : ""}
       </dl>
       ${flags.length ? `<ul class="flags">${flags.map((x) => `<li>${esc(FLAG_TEXT[x] || x)}</li>`).join("")}</ul>` : ""}
       <p class="callout">${callout}</p>
       <div class="cite-mini">
-        <h3>引用這條饋線</h3>
+        <h3>${f.feeder === CODE_NONE ? "引用" : "引用這條饋線"}</h3>
         <p class="cite-text" id="cite-feeder">${esc(dataCitation(f.feeder))}</p>
         <div class="btn-row">
           <button class="btn" type="button" data-copy="cite-feeder">複製引用</button>
@@ -290,7 +307,7 @@
       <ul class="links">
         <li><a href="https://service.taipower.com.tw/hcweb/geohc/" target="_blank" rel="noopener">到台電 FGIS 查最新官方值 ↗</a></li>
         <li><a href="${csvPath()}" download>下載本版饋線表（CSV）</a></li>
-        <li>原始檔存檔 SHA-256：<code title="${esc(L.archive_sha256)}">${esc(L.archive_sha256.slice(0, 16))}…</code>${arch ? `（<a href="${esc(arch)}">檔案</a>）` : ""}</li>
+        <li>原始檔存檔 SHA-256：<code title="${esc(sha)}">${esc(sha.slice(0, 16))}…</code>${arch ? `（<a href="${esc(arch)}">檔案</a>）` : ""}</li>
       </ul>`;
   }
 
@@ -398,7 +415,7 @@
         const f = byId[fs[0].properties.f];
         if (!f) return;
         popup.setLngLat(e.lngLat).setHTML(
-          `<div class="pop"><b>${esc(f.feeder)}</b>　${f.capacity_kw == null ? "無容量列" : `${fmt(f.capacity_kw, 1)} kW`}<br><small>點選看詳細與引用</small></div>`
+          `<div class="pop"><b>${esc(feederName(f.feeder))}</b>　${f.capacity_kw == null ? NO_CAP_LABEL : `${fmt(f.capacity_kw, 1)} kW`}${f.capacity_source === "S01" ? `（${esc(f.capacity_county)}）` : ""}<br><small>點選看詳細與引用</small></div>`
         ).addTo(map);
       });
       map.on("mouseout", () => popup.remove());
