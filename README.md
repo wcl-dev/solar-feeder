@@ -2,7 +2,8 @@
 
 雲林縣配電饋線的**台電公布可併網容量**現況地圖。每個數字都附資料日期、來源與存檔雜湊，可直接引用。
 
-- 網站：（GitHub Pages 網址，發布後填入）
+- 網站：https://wcl-dev.github.io/solar-feeder/
+- 程式與存檔：https://github.com/wcl-dev/solar-feeder
 - 方法與限制：`web/methods.html`
 - 資料審計：[`docs/audit/S02_capacity_audit.md`](docs/audit/S02_capacity_audit.md)
 - 決策與 spec 修正：[`docs/decisions.md`](docs/decisions.md)

@@ -7,6 +7,8 @@ authors:
 version: "0.1.0"
 date-released: "2026-10-11"
 license: MIT
+url: "https://wcl-dev.github.io/solar-feeder/"
+repository-code: "https://github.com/wcl-dev/solar-feeder"
 keywords:
   - 太陽光電
   - 併網
