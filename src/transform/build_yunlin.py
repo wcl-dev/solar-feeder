@@ -74,6 +74,45 @@ COUNTY_ZH = {
 }
 
 
+# Administrative coverage of each national file, checked by placing every file's
+# transformers on MOI county boundaries (2026-10-12): CHIAYI = 嘉義縣 89.6% + 嘉義市 10.3%,
+# HSINCHU = 新竹縣 76.1% + 新竹市 23.7%, all others ≥ 99.8% one county.
+# Penghu, Kinmen and Lienchiang (separate island grids) are not in the files.
+COUNTY_DISPLAY = {
+    "CHANGHUA": "彰化縣", "CHIAYI": "嘉義縣市", "HSINCHU": "新竹縣市", "HUALIEN": "花蓮縣", "KAOHSIUNG": "高雄市",
+    "KEELUNG": "基隆市", "MIAOLI": "苗栗縣", "NANTOU": "南投縣", "NEWTAIPEI": "新北市", "PINGTUNG": "屏東縣",
+    "TAICHUNG": "臺中市", "TAINAN": "臺南市", "TAIPEI": "臺北市", "TAITUNG": "臺東縣", "TAOYUAN": "桃園市",
+    "YILAN": "宜蘭縣", "YUNLIN": "雲林縣",
+}
+NOT_IN_NATIONAL_FILE = ["澎湖縣", "金門縣", "連江縣"]
+
+
+def national_stats(s01_row: pd.Series) -> dict:
+    """Per-county feeder statistics from one national file: same date and definition for every county."""
+    counties, dates = [], set()
+    with zipfile.ZipFile(ROOT / s01_row.archive_path) as z:
+        for info in z.infolist():
+            name = info.filename
+            if not name.endswith("_capacity.csv") or name.startswith("schema-"):
+                continue
+            code = name.removesuffix("_capacity.csv")
+            dates.add(date(*info.date_time[:3]).isoformat())
+            v = pd.read_csv(io.BytesIO(z.read(name)), encoding="utf-8-sig", dtype={"FEEDER": str}).CAPACITY
+            transformers = sum(1 for _ in z.open(f"{code}_tr_feeder.csv")) - 1
+            counties.append({
+                "code": code, "name": COUNTY_DISPLAY.get(code, code), "feeders": int(len(v)),
+                "zero": int((v <= 0).sum()), "zero_share": round(float((v <= 0).mean()), 4),
+                "under_1mw_share": round(float((v < 1000).mean()), 4), "median_kw": round(float(v.median()), 1),
+                "transformers": transformers,
+            })
+    return {
+        "snapshot_id": s01_row.snapshot_id,
+        "capacity_dates": sorted(dates),
+        "counties": sorted(counties, key=lambda c: (-c["zero_share"], c["name"])),
+        "not_included": NOT_IN_NATIONAL_FILE,
+    }
+
+
 def other_county_capacity(s01_zip: Path) -> dict[str, list[tuple[str, float]]]:
     """Feeder -> [(county code, kW), ...] from every non-Yunlin capacity table in the national S01 ZIP.
 
@@ -388,6 +427,17 @@ def main() -> None:
                     "dataset_page": s01.iloc[-1].dataset_page, "source_url": s01.iloc[-1].source_url},
             "S12": {"title": "鄉鎮市區界線(TWD97經緯度)", "publisher": "內政部國土測繪中心", **towns_meta},
         },
+        "source_titles": {
+            "S01": "台電全國各縣市再生能源可併網容量", "S02": "台電雲林縣再生能源可併網容量",
+            "S04": "立法院預算中心 115 年度總預算案整體評估報告（一二）",
+            "S12": "內政部鄉鎮市區界線（TWD97 經緯度）",
+            "S14": "立法院預算中心 114 年度總預算案整體評估報告（一○一）",
+        },
+        # Every approved archive file, for the methods page.
+        "archive": manifest[["snapshot_id", "source_id", "origin", "file_date", "file_date_basis", "members", "sha256",
+                             "archive_path"]].fillna("").sort_values(["source_id", "file_date"]).to_dict("records"),
+        "national": national_stats(s01[s01.snapshot_id == latest["s01_snapshot_id"]].iloc[0])
+        if latest["s01_snapshot_id"] else None,
         "classes": CLASSES,
         "crs": {"chosen": crs, "tests": crs_result},
         "latest": public(latest),
@@ -396,7 +446,8 @@ def main() -> None:
         "feeder_key_stability": stability,
         "s01_s02_cross_check": checks,
     }
-    (WEB / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1))
+    # allow_nan=False: NaN is not valid JSON and would break the whole page; fail the build instead.
+    (WEB / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1, allow_nan=False))
     write_audit(summary)
     print(json.dumps({"crs": crs_result,
                       "chosen": crs, "latest": latest["stats"], "cross_check": checks, "stability": stability},

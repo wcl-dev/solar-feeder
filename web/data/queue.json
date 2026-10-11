@@ -40,5 +40,76 @@
  "snapshot_id": "S04-2025-09-16",
  "archive_sha256": "d3ef550dab29dca609bd4a9362eb1a4ccb4652bc1c8f4caea1fccdda20fb3e30",
  "archive_path": "data/raw/S04/2025-09-16/ly115_budget_eval_s12.pdf",
- "curated_table": "data/curated/S04_queue_by_district_2025-06-30.csv"
+ "curated_table": "data/curated/S04_queue_by_district_2025-06-30.csv",
+ "districts": [
+  {
+   "district": "雲林",
+   "service_area": "雲林縣",
+   "cases": 439,
+   "capacity_mw": 183.27,
+   "share_of_listed_mw": 0.2442,
+   "over_2y_cases": 219,
+   "over_2y_mw": 92.85
+  },
+  {
+   "district": "屏東",
+   "service_area": "屏東縣",
+   "cases": 297,
+   "capacity_mw": 147.92,
+   "share_of_listed_mw": 0.1971,
+   "over_2y_cases": 134,
+   "over_2y_mw": 80.62
+  },
+  {
+   "district": "嘉義",
+   "service_area": "嘉義縣/市",
+   "cases": 154,
+   "capacity_mw": 116.51,
+   "share_of_listed_mw": 0.1553,
+   "over_2y_cases": 70,
+   "over_2y_mw": 60.03
+  },
+  {
+   "district": "新營",
+   "service_area": "台南市",
+   "cases": 133,
+   "capacity_mw": 104.81,
+   "share_of_listed_mw": 0.1397,
+   "over_2y_cases": 61,
+   "over_2y_mw": 50.61
+  },
+  {
+   "district": "台南",
+   "service_area": "台南市",
+   "cases": 196,
+   "capacity_mw": 73.18,
+   "share_of_listed_mw": 0.0975,
+   "over_2y_cases": 42,
+   "over_2y_mw": 27.52
+  },
+  {
+   "district": "彰化",
+   "service_area": "彰化縣",
+   "cases": 173,
+   "capacity_mw": 68.37,
+   "share_of_listed_mw": 0.0911,
+   "over_2y_cases": 70,
+   "over_2y_mw": 29.8
+  },
+  {
+   "district": "南投",
+   "service_area": "南投縣",
+   "cases": 108,
+   "capacity_mw": 56.38,
+   "share_of_listed_mw": 0.0751,
+   "over_2y_cases": 29,
+   "over_2y_mw": 14.21
+  }
+ ],
+ "coverage_source": {
+  "snapshot_id": "S14-2024-09-16",
+  "page_url": "https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=55648&pid=243293",
+  "source_url": "https://www.ly.gov.tw/Pages/ashx/File.ashx?FilePath=~/File/Attach/243293/File_19817703.pdf",
+  "citation": "轄區取自立法院預算中心〈114年度中央政府總預算案整體評估報告〉一○一、表4（PDF 第 6 頁）。"
+ }
 }

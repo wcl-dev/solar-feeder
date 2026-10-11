@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>方法與資料｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="資料來源、存檔版本、座標處理、分級方式與限制說明。">
-<link rel="stylesheet" href="style.css?v=0.1.4">
+<link rel="stylesheet" href="style.css?v=0.1.5-1">
 <style>
   .doc { max-width: 860px; }
   .doc h2 { font-size: 19px; margin: 36px 0 8px; padding-top: 4px; }
@@ -86,7 +86,7 @@
   </details>
   <details class="faq" id="faq-yunlin">
     <summary>為什麼只做雲林？</summary>
-    <p>截至 2025 年 6 月底，台電雲林區營業處的太陽光電等待併網容量，在立法院預算中心報告表列的區處中最高。本站先在一個縣把資料審計、座標驗證與引用方式做紮實，再擴展到其他縣市；全國資料已在本站存檔中。</p>
+    <p>截至 2025 年 6 月底，台電雲林區營業處的太陽光電等待併網容量，在立法院預算中心報告表列的區處中最高。本站先在一個縣把資料審計、座標驗證與引用方式做紮實，再擴展到其他縣市；全國資料已在本站存檔中。首頁「雲林在全國的位置」列出各縣市與各區處的比較，兩種指標的排名不一定相同。</p>
   </details>
   <details class="faq" id="faq-zero">
     <summary>公布為 0，是不是代表不能併網？</summary>
@@ -178,7 +178,7 @@
 
 <footer class="site-foot"><div class="wrap"><p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。<a href="./">回到現況地圖</a></p></div></footer>
 
-<script src="config.js?v=0.1.4"></script>
+<script src="config.js?v=0.1.5-1"></script>
 <script>
 (async () => {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -199,11 +199,16 @@
 
   document.getElementById("dates").innerHTML = `方法版本 ${esc(S.method_version)}・台電容量表日期 <b>${esc(L.capacity_date)}</b>・本站最後檢查來源 <b>${esc((S.source_last_checked || "").slice(0, 10))}</b>`;
 
-  const snaps = [
-    ...S.history.map((h) => ({ id: h.snapshot_id, src: "S02 台電雲林縣再生能源可併網容量", origin: h.origin, date: `容量表 ${h.capacity_date}／位置表 ${h.points_date}`, basis: "zip_member_mtime", sha: h.archive_sha256, path: h.archive_path })),
-    { id: S.sources.S12.snapshot_id, src: "S12 鄉鎮市區界線（TWD97 經緯度）", origin: "publisher_live", date: S.sources.S12.snapshot_id.slice(4), basis: "zip_member_mtime", sha: S.sources.S12.sha256, path: `data/raw/S12/${S.sources.S12.snapshot_id.slice(4)}/township_1140318.zip` },
-    ...(Q ? [{ id: `S04-2025-09-16`, src: "S04 立法院預算中心 115 年度總預算案整體評估報告（一二）", origin: "publisher_live", date: "2025-09-16", basis: "pdf_creation_date", sha: Q.archive_sha256, path: Q.archive_path }] : []),
-  ];
+  // Every approved archive file. Taipower ZIPs: show the capacity and location table dates separately.
+  const tableDates = (a) => {
+    const m = Object.fromEntries((a.members || "").split(";").filter(Boolean).map((x) => x.split("@")));
+    return m["YUNLIN_capacity.csv"] && m["YUNLIN_tr_feeder.csv"]
+      ? `雲林容量表 ${m["YUNLIN_capacity.csv"]}／位置表 ${m["YUNLIN_tr_feeder.csv"]}` : a.file_date;
+  };
+  const snaps = S.archive.map((a) => ({
+    id: a.snapshot_id, src: `${a.source_id} ${S.source_titles[a.source_id] || ""}`, origin: a.origin,
+    date: tableDates(a), basis: a.file_date_basis, sha: a.sha256, path: a.archive_path,
+  }));
   document.querySelector("#snap-table tbody").innerHTML = snaps.map((s) => `<tr><td>${esc(s.id)}</td><td>${esc(s.src)}</td><td>${esc(origin[s.origin] || s.origin)}</td><td>${esc(s.date)}</td><td>${esc(basis[s.basis])}</td><td><code title="${esc(s.sha)}">${esc(s.sha.slice(0, 16))}…</code> ${link(s.path)}</td></tr>`).join("");
 
   document.getElementById("xcheck").innerHTML = S.s01_s02_cross_check.map((c) => `<li>${esc(c.file_date)}：容量表 ${c.capacity === "identical" ? "相同" : esc(c.capacity)}；位置表 ${c.tr_feeder === "identical" ? "相同" : esc(c.tr_feeder)}</li>`).join("");

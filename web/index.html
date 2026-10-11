@@ -6,7 +6,7 @@
 <title>雲林饋線容量現況｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="雲林縣配電饋線的台電公布可併網容量現況地圖。每個數字附資料日期、來源與存檔雜湊，可直接引用。">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<link rel="stylesheet" href="style.css?v=0.1.4">
+<link rel="stylesheet" href="style.css?v=0.1.5-1">
 </head>
 <body>
 <a class="skip" href="#feeder-table">跳到饋線清單</a>
@@ -49,6 +49,48 @@
   </section>
 
   <section class="wrap band" id="queue-band" hidden aria-label="等待併網（區處層級）"></section>
+
+  <section class="wrap block" id="national" aria-labelledby="national-h">
+    <div class="block-head">
+      <h2 id="national-h">雲林在全國的位置</h2>
+      <p class="block-sub">兩張表是兩種不同的指標：左邊是台電饋線的公布容量（以縣市分），右邊是等待併網的案件（以台電區處分）。兩者口徑不同，不能相加或互相換算；比例高也不代表該地「最缺電網」。</p>
+    </div>
+    <div class="nat-grid">
+      <div>
+        <h3 class="sub-h">各縣市：公布可併網容量為 0 的饋線比例 <span class="tag" data-tag="derived" title="計算：本專案依公開方法由原始資料計算而得">計算</span></h3>
+        <div class="table-scroll">
+          <table class="data nat-table" id="county-table">
+            <thead><tr>
+              <th scope="col">縣市</th>
+              <th scope="col" class="num">饋線數</th>
+              <th scope="col" class="num">公布為 0</th>
+              <th scope="col" class="bar-col">比例</th>
+              <th scope="col" class="num">中位數（kW）</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="nat-note" id="county-note"></p>
+      </div>
+      <div id="district-block">
+        <h3 class="sub-h">各區處：太陽光電等待併網 <span class="tag" data-tag="observed" title="事實：台電或官方文件直接記錄的數值">事實</span></h3>
+        <div class="table-scroll">
+          <table class="data nat-table" id="district-table">
+            <thead><tr>
+              <th scope="col">區處</th>
+              <th scope="col">轄區</th>
+              <th scope="col" class="num">件數</th>
+              <th scope="col" class="num">容量（MW）</th>
+              <th scope="col" class="bar-col">占表列容量</th>
+              <th scope="col" class="num">逾 2 年</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="nat-note" id="district-note"></p>
+      </div>
+    </div>
+  </section>
 
   <section class="wrap block" aria-labelledby="town-h">
     <div class="block-head">
@@ -126,7 +168,7 @@
 </footer>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="config.js?v=0.1.4"></script>
-<script src="app.js?v=0.1.4"></script>
+<script src="config.js?v=0.1.5-1"></script>
+<script src="app.js?v=0.1.5-1"></script>
 </body>
 </html>

@@ -82,6 +82,7 @@
     renderKpis();
     renderLegend();
     renderQueue(queue);
+    renderNational(queue);
     renderTowns(towns);
     renderTableTools(towns);
     renderTable();
@@ -184,6 +185,34 @@
         <div><div class="v">${(q.share_of_listed_mw * 100).toFixed(2)}<small>%</small></div><div class="l">占表列 ${q.listed_districts} 個區處等待容量${q.rank_by_mw_among_listed === 1 ? "，表列最高" : ""}</div></div>
       </div>
       <p class="src">截至 ${esc(q.as_of)}。${esc(q.citation)}<a href="${esc(q.page_url)}">原文頁面</a>・<a href="${esc(q.source_url)}">PDF</a>（本站存檔版本 ${esc(q.snapshot_id)}）。${esc(q.note)}</p>`;
+  }
+
+  function renderNational(q) {
+    const N = S.national;
+    if (!N) { $("#national").hidden = true; return; }
+    const bar = (share, color) => `<div class="ibar"><span><i style="width:${share * 100}%${color ? `;background:${color}` : ""}"></i></span><b>${pct(share)}</b></div>`;
+    $("#county-table tbody").innerHTML = N.counties.map((c) => `
+      <tr class="${c.code === "YUNLIN" ? "is-here" : ""}"><th scope="row">${esc(c.name)}</th>
+        <td class="num">${fmt(c.feeders)}</td>
+        <td class="num">${fmt(c.zero)}</td>
+        <td>${bar(c.zero_share)}</td>
+        <td class="num">${fmt(c.median_kw)}</td></tr>`).join("");
+    $("#county-note").textContent =
+      `同一份台電全國檔（存檔版本 ${N.snapshot_id}，容量表 ${N.capacity_dates.join("、")}），各縣市的日期與計算方式相同。` +
+      `嘉義、新竹的台電檔案涵蓋縣與市；${N.not_included.join("、")}為獨立電網，不在檔案中。` +
+      `各縣市饋線的數量與長度差異很大，這個比例只反映「公布為 0 的饋線占多少」，不是可併網總量。`;
+
+    if (!q || !q.districts) { $("#district-block").hidden = true; return; }
+    $("#district-table tbody").innerHTML = q.districts.map((d) => `
+      <tr class="${d.district === "雲林" ? "is-here" : ""}"><th scope="row">${esc(d.district)}</th>
+        <td>${esc(d.service_area)}</td>
+        <td class="num">${fmt(d.cases)}</td>
+        <td class="num">${fmt(d.capacity_mw, 2)}</td>
+        <td>${bar(d.share_of_listed_mw, "var(--c3)")}</td>
+        <td class="num">${fmt(d.over_2y_cases)} 件</td></tr>`).join("");
+    $("#district-note").textContent =
+      `截至 ${q.as_of}。${q.citation}${q.coverage_source.citation}` +
+      `表列 ${q.listed_districts} 個區處；區處不等於縣市，例如臺南市分屬台南、新營兩個區處。`;
   }
 
   function renderTowns(towns) {

@@ -16,6 +16,7 @@ Usage:
   uv run python src/ingest/fetch_snapshots.py            # scheduled check
   uv run python src/ingest/fetch_snapshots.py --force    # ignore schedules and conditional requests
   uv run python src/ingest/fetch_snapshots.py --no-wayback-save
+  uv run python src/ingest/fetch_snapshots.py --archive-manual   # also archive manual sources not yet in the archive
 New Taipower snapshots are printed as "NEW SNAPSHOT <id>" and, under GitHub
 Actions, written to $GITHUB_OUTPUT as new_snapshots=<id,id>.
 """
@@ -60,6 +61,15 @@ SOURCES = {
         "dataset": "https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=56112&pid=255076",
         # Not a ZIP: date is the PDF's /CreationDate (2025-09-16 10:28:57 +08:00).
         "file_date": "2025-09-16",
+        "file_date_basis": "pdf_creation_date",
+    },
+    "S14": {
+        "mode": "manual",
+        # LY Budget Center, FY114 overall evaluation, section 101: 表4 lists each Taipower district's service area.
+        "url": "https://www.ly.gov.tw/Pages/ashx/File.ashx?FilePath=~/File/Attach/243293/File_19817703.pdf",
+        "file": "ly114_budget_eval_s101.pdf",
+        "dataset": "https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=55648&pid=243293",
+        "file_date": "2024-09-16",  # PDF /CreationDate 2024-09-16 09:40:58 +08:00
         "file_date_basis": "pdf_creation_date",
     },
     # mode "watch": the download URL carries the release date, so a new release is a new URL.
@@ -195,6 +205,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--force", action="store_true", help="ignore schedules and conditional requests")
     ap.add_argument("--no-wayback-save", action="store_true", help="do not ask Wayback to capture new versions")
+    ap.add_argument("--archive-manual", action="store_true", help="archive manual sources that are not archived yet")
     args = ap.parse_args()
 
     manifest = {r["sha256"]: r for r in read_csv(MANIFEST)}
@@ -208,6 +219,11 @@ def main() -> None:
 
     for sid, src in SOURCES.items():
         if src["mode"] == "manual":
+            if args.archive_manual and not any(r["source_id"] == sid for r in manifest.values()):
+                status, blob, headers = http_get(src["url"])
+                rec = store(sid, "publisher_live", src["url"], blob, headers)
+                manifest[rec["sha256"]] = rec
+                print(f"archived  {rec['snapshot_id']} (manual source) sha256={rec['sha256'][:12]}")
             continue
         if src["mode"] == "watch":
             last = last_check(checks, sid)

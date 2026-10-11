@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CURATED = ROOT / "data" / "curated" / "S04_queue_by_district_2025-06-30.csv"
+COVERAGE = ROOT / "data" / "curated" / "S14_district_service_area.csv"
 MANIFEST = ROOT / "data" / "manifests" / "snapshots.csv"
 OUT = ROOT / "web" / "data" / "queue.json"
 
@@ -31,7 +32,12 @@ def main() -> None:
 
     listed_total = table[("合計(A)", "total")]
     ranked = sorted(districts, key=lambda d: table[(d, "total")][1], reverse=True)
-    snap = next(r for r in csv.DictReader(MANIFEST.open(encoding="utf-8")) if r["source_id"] == "S04")
+    manifest = list(csv.DictReader(MANIFEST.open(encoding="utf-8")))
+    snap = next(r for r in manifest if r["source_id"] == "S04")
+    cov_snap = next(r for r in manifest if r["source_id"] == "S14")
+    coverage = {r["district"]: r["service_area"] for r in csv.DictReader(COVERAGE.open(encoding="utf-8"))}
+    missing = [d for d in districts if d not in coverage]
+    assert not missing, f"no service area for {missing}"
 
     queue = {
         "source_id": "S04",
@@ -62,8 +68,19 @@ def main() -> None:
         "archive_sha256": snap["sha256"],
         "archive_path": snap["archive_path"],
         "curated_table": str(CURATED.relative_to(ROOT)),
+        # All listed districts, for the national comparison. Service areas come from a different
+        # report (FY114, 表4) because the FY115 table does not list them.
+        "districts": sorted(
+            ({"district": d, "service_area": coverage[d], "cases": table[(d, "total")][0],
+              "capacity_mw": table[(d, "total")][1], "share_of_listed_mw": round(table[(d, "total")][1] / listed_total[1], 4),
+              "over_2y_cases": table[(d, "超過2年以上")][0], "over_2y_mw": table[(d, "超過2年以上")][1]} for d in districts),
+            key=lambda r: -r["capacity_mw"]),
+        "coverage_source": {
+            "snapshot_id": cov_snap["snapshot_id"], "page_url": cov_snap["dataset_page"], "source_url": cov_snap["source_url"],
+            "citation": "轄區取自立法院預算中心〈114年度中央政府總預算案整體評估報告〉一○一、表4（PDF 第 6 頁）。",
+        },
     }
-    OUT.write_text(json.dumps(queue, ensure_ascii=False, indent=1))
+    OUT.write_text(json.dumps(queue, ensure_ascii=False, indent=1, allow_nan=False))
     print(json.dumps({k: queue[k] for k in ("cases", "capacity_mw", "over_2y_cases", "over_2y_mw", "share_of_listed_mw", "rank_by_mw_among_listed")}, ensure_ascii=False))
 
 
