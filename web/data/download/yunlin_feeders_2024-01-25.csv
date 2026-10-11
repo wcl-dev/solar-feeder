@@ -1,6 +1,6 @@
 ﻿# 雲林縣配電饋線公布可併網容量｜台電容量表日期 2024-01-25｜原始檔 SHA-256 85127bda1ff9730e7dcd5efd563d43a73eaa3baf8dfb83cdb0a31aa6bcd964cd
 # 來源：台灣電力公司，政府資料開放平臺 https://data.gov.tw/dataset/44208，政府資料開放授權條款－第1版 https://data.gov.tw/license
-# 衍生欄位（class、鄉鎮、經緯度）為本專案計算，方法版本 0.1.0。容量不可跨饋線加總。
+# 衍生欄位（class、鄉鎮、經緯度）為本專案計算，方法版本 0.2.0。容量不可跨饋線加總。
 feeder,capacity_kw,capacity_source,capacity_county,class,class_label,transformer_points,main_township,main_township_share,townships,lon,lat,flags
 AH23,,,,-1,台電未列容量,2,（縣界外）,0.5,（縣界外）、古坑鄉,120.63854,23.65996,no_capacity_row;points_outside_county
 AH31,,,,-1,台電未列容量,1,（縣界外）,1.0,（縣界外）,120.73137,23.6153,no_capacity_row;points_outside_county

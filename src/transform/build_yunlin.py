@@ -27,7 +27,7 @@ import geopandas as gpd
 import pandas as pd
 from pyproj import Transformer
 
-METHOD_VERSION = "0.1.0"
+METHOD_VERSION = "0.2.0"  # 0.2.0: neighbour-county feeders filled from same-day S01; 台電未列容量 split out
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "data" / "manifests" / "snapshots.csv"
 CHECKS = ROOT / "data" / "manifests" / "checks.csv"
