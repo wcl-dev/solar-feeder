@@ -1,0 +1,43 @@
+{
+ "source_id": "S04",
+ "district": "台電雲林區營業處",
+ "as_of": "2025-06-30",
+ "cases": 439,
+ "capacity_mw": 183.27,
+ "over_2y_cases": 219,
+ "over_2y_mw": 92.85,
+ "buckets": [
+  {
+   "bucket": "半年以內",
+   "cases": 7,
+   "capacity_mw": 2.06
+  },
+  {
+   "bucket": "超過半年1年以內",
+   "cases": 32,
+   "capacity_mw": 11.39
+  },
+  {
+   "bucket": "超過1年2年以內",
+   "cases": 181,
+   "capacity_mw": 76.97
+  },
+  {
+   "bucket": "超過2年以上",
+   "cases": 219,
+   "capacity_mw": 92.85
+  }
+ ],
+ "listed_districts": 7,
+ "listed_total_cases": 1500,
+ "listed_total_mw": 750.44,
+ "share_of_listed_mw": 0.2442,
+ "rank_by_mw_among_listed": 1,
+ "citation": "來源：立法院預算中心〈115年度中央政府總預算案整體評估報告〉一二、表2〈截至114年6月底止太陽光電裝置等候併網件數及裝置容量統計表〉（PDF 第 3 頁），資料來源為台電公司 114 年 8 月提供。",
+ "note": "表2只列 7 個區處（合計 1,500 件、750.44 MW），未說明其他區處為零或未列入，因此不稱為全臺總數。",
+ "source_url": "https://www.ly.gov.tw/Pages/ashx/File.ashx?FilePath=~/File/Attach/255076/File_19860273.pdf",
+ "page_url": "https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=56112&pid=255076",
+ "archive_sha256": "d3ef550dab29dca609bd4a9362eb1a4ccb4652bc1c8f4caea1fccdda20fb3e30",
+ "archive_path": "data/raw/S04/2025-09-16/ly115_budget_eval_s12.pdf",
+ "curated_table": "data/curated/S04_queue_by_district_2025-06-30.csv"
+}
