@@ -2,6 +2,13 @@
   "use strict";
 
   const CFG = window.SITE_CONFIG || {};
+  // Standalone preview: data, CSVs and the methods page are embedded by src/publish/build_preview.py.
+  const INLINE = window.__INLINE_DATA__ || null;
+  const blobUrls = {};
+  const downloadHref = (path) => {
+    if (!INLINE || typeof INLINE[path] !== "string") return path;
+    return (blobUrls[path] ||= URL.createObjectURL(new Blob(["\ufeff" + INLINE[path]], { type: "text/csv;charset=utf-8" })));
+  };
   const COLORS = { "-1": "#898781", 0: "#eb6834", 1: "#86b6ef", 2: "#3987e5", 3: "#256abf", 4: "#104281" };
   const NO_CAP = -1;
   const NO_CAP_LABEL = "台電未列容量";
@@ -37,14 +44,17 @@
   const bounds = {};
   const sortState = { key: "capacity_kw", dir: "asc" };
 
-  const pageUrl = () => CFG.siteUrl || location.href.split("#")[0];
-  const csvPath = () => `data/download/yunlin_feeders_${L.capacity_date}.csv`;
+  // A local file path must never end up in a citation, so file:/blob: pages have no shareable URL.
+  const pageUrl = () => CFG.siteUrl || (/^(file|blob):/.test(location.protocol) ? null : location.href.split("#")[0]);
+  const csvPath = () => downloadHref(`data/download/yunlin_feeders_${L.capacity_date}.csv`);
   const archiveUrl = (path = L.archive_path) => (CFG.repoUrl ? `${CFG.repoUrl}/blob/${CFG.repoBranch || "main"}/${path}` : null);
   const classLabel = (c) => (c === NO_CAP ? NO_CAP_LABEL : classes.find((k) => k.id === c).label);
   const feederName = (id) => (id === CODE_NONE ? "（未標饋線）" : id);
 
   async function load() {
-    const get = (u) => fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`))));
+    const get = (u) => (INLINE && u in INLINE
+      ? (INLINE[u] == null ? Promise.reject(new Error(`${u}: not embedded`)) : Promise.resolve(INLINE[u]))
+      : fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`)))));
     const [summary, tx, towns, queue] = await Promise.all([
       get("data/summary.json"),
       get("data/transformers.geojson"),
@@ -189,6 +199,7 @@
     $("#town-filter").insertAdjacentHTML("beforeend",
       towns.features.map((t) => `<option>${esc(t.properties.name)}</option>`).join(""));
     $("#dl-csv").href = csvPath();
+    $("#dl-csv").download = `yunlin_feeders_${L.capacity_date}.csv`;
     $("#q").addEventListener("input", renderTable);
     $("#town-filter").addEventListener("change", renderTable);
     $$("#feeders thead button").forEach((b) => b.addEventListener("click", () => {
@@ -243,12 +254,12 @@
     return `${src.publisher}（${year}）。${src.title}［資料集；容量表檔案日期 ${L.capacity_date}］。政府資料開放平臺，${src.dataset_page}。` +
       (feederId ? `${national ? `${f.capacity_county}容量表，` : ""}饋線 ${feederName(feederId)}。` : "") +
       `本站存檔版本 ${snap}，SHA-256 ${sha}${arch ? `，${arch}` : ""}。` +
-      (feederId ? `檢視頁面：${pageUrl()}#feeder=${encodeURIComponent(feederId)}。` : "") +
+      (feederId && pageUrl() ? `檢視頁面：${pageUrl()}#feeder=${encodeURIComponent(feederId)}。` : "") +
       `取用日期 ${today()}。`;
   }
 
   function siteCitation() {
-    return `台灣太陽光電併網瓶頸觀測站（${S.built_on.slice(0, 4)}）。雲林縣配電饋線：公布可併網容量現況（方法版本 ${S.method_version}；台電容量表 ${L.capacity_date}）。${pageUrl()}。取用日期 ${today()}。`;
+    return `台灣太陽光電併網瓶頸觀測站（${S.built_on.slice(0, 4)}）。雲林縣配電饋線：公布可併網容量現況（方法版本 ${S.method_version}；台電容量表 ${L.capacity_date}）。${pageUrl() || "（正式網址發布後提供）"}。取用日期 ${today()}。`;
   }
 
   function renderCitations() {
@@ -301,12 +312,12 @@
         <p class="cite-text" id="cite-feeder">${esc(dataCitation(f.feeder))}</p>
         <div class="btn-row">
           <button class="btn" type="button" data-copy="cite-feeder">複製引用</button>
-          <button class="btn" type="button" data-copy-text="${esc(`${pageUrl()}#feeder=${encodeURIComponent(f.feeder)}`)}">複製連結</button>
+          ${pageUrl() ? `<button class="btn" type="button" data-copy-text="${esc(`${pageUrl()}#feeder=${encodeURIComponent(f.feeder)}`)}">複製連結</button>` : ""}
         </div>
       </div>
       <ul class="links">
         <li><a href="https://service.taipower.com.tw/hcweb/geohc/" target="_blank" rel="noopener">到台電 FGIS 查最新官方值 ↗</a></li>
-        <li><a href="${csvPath()}" download>下載本版饋線表（CSV）</a></li>
+        <li><a href="${csvPath()}" download="yunlin_feeders_${esc(L.capacity_date)}.csv">下載本版饋線表（CSV）</a></li>
         <li>原始檔存檔 SHA-256：<code title="${esc(sha)}">${esc(sha.slice(0, 16))}…</code>${arch ? `（<a href="${esc(arch)}">檔案</a>）` : ""}</li>
       </ul>`;
   }
@@ -355,6 +366,15 @@
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
 
+    // If the basemap style cannot be fetched (offline, blocked network), keep the data layers on a plain background.
+    let noBasemap = false;
+    map.on("error", () => {
+      if (noBasemap || map.isStyleLoaded()) return;
+      noBasemap = true;
+      map.setStyle({ version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#eef0f0" } }] });
+      $(".map-col").insertAdjacentHTML("afterbegin", '<p class="map-warn" role="status">底圖無法載入（可能沒有網路或被防火牆阻擋），以下只顯示饋線與鄉鎮界線。</p>');
+    });
+
     map.on("load", () => {
       // Basemap labels: Chinese names only.
       for (const l of map.getStyle().layers) {
@@ -399,7 +419,8 @@
           "circle-stroke-color": "#0b0b0b",
         },
       });
-      map.addLayer({
+      // Text layers need the basemap's glyph server; skip labels when it is unavailable.
+      if (!noBasemap) map.addLayer({
         id: "town-label", type: "symbol", source: "town-labels",
         layout: { "text-field": ["get", "name"], "text-size": ["interpolate", ["linear"], ["zoom"], 8, 11, 12, 14], "text-allow-overlap": false },
         paint: { "text-color": "#3d3c39", "text-halo-color": "rgba(252,252,251,0.95)", "text-halo-width": 1.6 },
@@ -446,6 +467,23 @@
     });
   }
 
+  function bindStandalone() {
+    if (window.__PREVIEW__) {
+      document.body.insertAdjacentHTML("afterbegin",
+        `<div class="preview-banner" role="note">${esc(window.__PREVIEW__)}</div>`);
+    }
+    if (!window.__METHODS_HTML__) return;
+    let url;
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest('a[href^="methods.html"]');
+      if (!a) return;
+      e.preventDefault();
+      url ||= URL.createObjectURL(new Blob([window.__METHODS_HTML__], { type: "text/html;charset=utf-8" }));
+      window.open(url + (a.hash || ""), "_blank");
+    });
+  }
+
+  bindStandalone();
   load().catch((err) => {
     console.error(err);
     $("#dates").textContent = "資料載入失敗，請重新整理。";

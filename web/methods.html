@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>方法與資料｜台灣太陽光電併網瓶頸觀測站</title>
 <meta name="description" content="資料來源、存檔版本、座標處理、分級方式與限制說明。">
-<link rel="stylesheet" href="style.css?v=0.1.1">
+<link rel="stylesheet" href="style.css?v=0.1.2">
 <style>
   .doc { max-width: 860px; }
   .doc h2 { font-size: 19px; margin: 36px 0 8px; padding-top: 4px; }
@@ -129,15 +129,20 @@
 
 <footer class="site-foot"><div class="wrap"><p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。<a href="./">回到現況地圖</a></p></div></footer>
 
-<script src="config.js?v=0.1.1"></script>
+<script src="config.js?v=0.1.2"></script>
 <script>
 (async () => {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const fmt = (n, d = 0) => (n == null ? "—" : Number(n).toLocaleString("zh-TW", { minimumFractionDigits: d, maximumFractionDigits: d }));
   const pct = (x) => `${(x * 100).toFixed(1)}%`;
   const CFG = window.SITE_CONFIG || {};
-  const S = await fetch("data/summary.json").then((r) => r.json());
-  const Q = await fetch("data/queue.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const INLINE = window.__INLINE_DATA__ || null; // set in the standalone preview
+  const getJSON = (u) => (INLINE && u in INLINE ? Promise.resolve(INLINE[u]) : fetch(u).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  const dl = (path) => (INLINE && typeof INLINE[path] === "string"
+    ? URL.createObjectURL(new Blob(["\ufeff" + INLINE[path]], { type: "text/csv;charset=utf-8" }))
+    : path);
+  const S = await getJSON("data/summary.json");
+  const Q = await getJSON("data/queue.json");
   const L = S.latest;
   const origin = { publisher_live: "提供者網站", wayback: "Wayback Machine" };
   const basis = { zip_member_mtime: "ZIP 內檔案日期", pdf_creation_date: "PDF 建立日期" };
@@ -163,7 +168,7 @@
 
   document.querySelector("#crs-table tbody").innerHTML = Object.entries(S.crs.tests).map(([k, v]) => `<tr${k === S.crs.chosen ? ' style="font-weight:600"' : ""}><td style="white-space:normal">${esc(v.name)}${k === S.crs.chosen ? "（採用）" : ""}</td><td class="num">${(v.inside_county * 100).toFixed(2)}%</td><td class="num">${fmt(v.off_land_points)}</td><td class="num">${fmt(v.off_land_over_100m)}</td><td class="num">${fmt(v.mean_offset_from_towgs84_m, 1)} m</td></tr>`).join("");
 
-  document.querySelector("#hist-table tbody").innerHTML = S.history.map((h) => `<tr><td>${esc(h.capacity_date)}</td><td>${esc(origin[h.origin] || h.origin)}</td><td class="num">${fmt(h.stats.feeders_with_capacity)}</td><td class="num">${fmt(h.stats.zero)}</td><td class="num">${pct(h.stats.zero_share)}</td><td class="num">${fmt(h.stats.median_kw)}</td><td><a href="data/download/yunlin_feeders_${esc(h.capacity_date)}.csv" download>CSV</a></td></tr>`).join("");
+  document.querySelector("#hist-table tbody").innerHTML = S.history.map((h) => `<tr><td>${esc(h.capacity_date)}</td><td>${esc(origin[h.origin] || h.origin)}</td><td class="num">${fmt(h.stats.feeders_with_capacity)}</td><td class="num">${fmt(h.stats.zero)}</td><td class="num">${pct(h.stats.zero_share)}</td><td class="num">${fmt(h.stats.median_kw)}</td><td><a href="${esc(dl(`data/download/yunlin_feeders_${h.capacity_date}.csv`))}" download="yunlin_feeders_${esc(h.capacity_date)}.csv">CSV</a></td></tr>`).join("");
   document.querySelector("#stab-table tbody").innerHTML = S.feeder_key_stability.map((x) => `<tr><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td class="num">${fmt(x.common)}</td><td class="num">${fmt(x.only_from)}</td><td class="num">${fmt(x.only_to)}</td></tr>`).join("");
 })();
 </script>
