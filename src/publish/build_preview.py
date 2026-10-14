@@ -64,12 +64,15 @@ def compact_points(geojson: dict) -> dict:
 
 DECODE_POINTS = """
 (function () {
-  var d = window.__INLINE_DATA__, c = d.__points, feats = [];
-  for (var i = 0; i < c.rows.length; i += 4) {
-    feats.push({ type: "Feature", geometry: { type: "Point", coordinates: [c.rows[i] / 1e5, c.rows[i + 1] / 1e5] },
-                 properties: { f: c.feeders[c.rows[i + 2]], c: c.rows[i + 3] } });
-  }
-  d["data/transformers.geojson"] = { type: "FeatureCollection", features: feats };
+  var d = window.__INLINE_DATA__;
+  Object.keys(d.__points).forEach(function (path) {
+    var c = d.__points[path], feats = [];
+    for (var i = 0; i < c.rows.length; i += 4) {
+      feats.push({ type: "Feature", geometry: { type: "Point", coordinates: [c.rows[i] / 1e5, c.rows[i + 1] / 1e5] },
+                   properties: { f: c.feeders[c.rows[i + 2]], c: c.rows[i + 3] } });
+    }
+    d[path] = { type: "FeatureCollection", features: feats };
+  });
   delete d.__points;
 })();
 """
@@ -89,14 +92,18 @@ def inline_assets(html: str, css: dict[str, str], scripts: dict[str, str]) -> st
 
 
 def main() -> None:
-    summary = json.loads((WEB / "data" / "summary.json").read_text(encoding="utf-8"))
-    queue = json.loads((WEB / "data" / "queue.json").read_text(encoding="utf-8"))
-    towns = json.loads((WEB / "data" / "townships.geojson").read_text(encoding="utf-8"))
-    points = json.loads((WEB / "data" / "transformers.geojson").read_text(encoding="utf-8"))
+    read = lambda rel: json.loads((WEB / rel).read_text(encoding="utf-8"))  # noqa: E731
+    summary, queue = read("data/summary.json"), read("data/queue.json")
+    county_data, points = {}, {}
+    for c in summary["counties"]:
+        for name in ("feeders.json", "townships.geojson", "town_lines.geojson"):
+            county_data[f"data/{c['slug']}/{name}"] = read(f"data/{c['slug']}/{name}")
+        points[f"data/{c['slug']}/transformers.geojson"] = compact_points(read(f"data/{c['slug']}/transformers.geojson"))
     csvs = {f"data/download/{p.name}": p.read_text(encoding="utf-8-sig") for p in sorted((WEB / "data" / "download").glob("*.csv"))}
 
     built = date.today().isoformat()
-    banner = (f"預覽版（{built} 建置，台電容量表 {summary['latest']['capacity_date']}）："
+    cap_dates = "、".join(sorted({c["latest"]["capacity_date"] for c in summary["counties"]}))
+    banner = (f"預覽版（{built} 建置，台電容量表 {cap_dates}）："
               "尚未正式發布，內容與數字可能調整，請勿對外引用。底圖需要網路連線。")
     style = (WEB / "style.css").read_text(encoding="utf-8")
     config = (WEB / "config.js").read_text(encoding="utf-8")
@@ -118,8 +125,7 @@ def main() -> None:
     index = (WEB / "index.html").read_text(encoding="utf-8")
     index = inline_assets(index, {"maplibre-gl.css": maplibre_css, "style.css": style},
                           {"maplibre-gl.js": maplibre_js, "config.js": config, "app.js": (WEB / "app.js").read_text(encoding="utf-8")})
-    data = {"data/summary.json": summary, "data/queue.json": queue, "data/townships.geojson": towns,
-            "__points": compact_points(points), **csvs}
+    data = {"data/summary.json": summary, "data/queue.json": queue, **county_data, "__points": points, **csvs}
     payload = (f"<script>window.__INLINE_DATA__ = {js_value(data)};\n"
                f"window.__PREVIEW__ = {js_value(banner)};\n"
                f"window.__METHODS_HTML__ = {js_value(methods)};</script>\n"
@@ -135,7 +141,7 @@ def main() -> None:
         assert not re.search(leak, index), f"local path {leak!r} found in output"
 
     DIST.mkdir(exist_ok=True)
-    out = DIST / f"雲林饋線容量現況_預覽版_{built}.html"
+    out = DIST / f"饋線容量現況_預覽版_{built}.html"
     out.write_text(index, encoding="utf-8")
     print(f"{out.relative_to(ROOT)}  {out.stat().st_size / 1e6:.2f} MB")
 

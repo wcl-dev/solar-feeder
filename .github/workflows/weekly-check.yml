@@ -56,7 +56,7 @@ jobs:
           fi
       - name: Rebuild site data from approved snapshots only
         run: |
-          uv run python src/transform/build_yunlin.py
+          uv run python src/transform/build_counties.py
           uv run python src/transform/build_queue.py
       - name: Commit check log and any new raw archive to main
         run: |
@@ -78,7 +78,7 @@ jobs:
           uv run python src/report/summarize_change.py > "$RUNNER_TEMP/pr_body.md"
           git switch -c "$branch"
           uv run python src/ingest/approve.py $ids
-          uv run python src/transform/build_yunlin.py
+          uv run python src/transform/build_counties.py
           uv run python src/transform/build_queue.py
           git add data web docs
           git commit -m "Publish $NEW_SNAPSHOTS"

@@ -1,11 +1,11 @@
 # 台灣太陽光電併網瓶頸觀測站
 
-雲林縣配電饋線的**台電公布可併網容量**現況地圖。每個數字都附資料日期、來源與存檔雜湊，可直接引用。
+彰化縣、雲林縣、嘉義縣市配電饋線的**台電公布可併網容量**現況地圖。每個數字都附資料日期、來源與存檔版本，可直接引用。
 
 - 網站：https://wcl-dev.github.io/solar-feeder/
 - 程式與存檔：https://github.com/wcl-dev/solar-feeder
 - 方法與限制：`web/methods.html`
-- 資料審計：[`docs/audit/S02_capacity_audit.md`](docs/audit/S02_capacity_audit.md)
+- 資料審計：`docs/audit/`，每縣一份（如 [`yunlin_capacity_audit.md`](docs/audit/yunlin_capacity_audit.md)）
 - 決策與 spec 修正：[`docs/decisions.md`](docs/decisions.md)
 
 > 本站為獨立整理，不代表台電或政府機關立場，也不是正式併網判定工具。公布容量低或為 0，不代表新案一定無法併網。
@@ -14,10 +14,10 @@
 
 | ID | 來源 | 用途 |
 |---|---|---|
-| S02 | 台灣電力公司〈雲林縣再生能源可併網容量〉（[data.gov.tw/dataset/44208](https://data.gov.tw/dataset/44208)） | 饋線容量與變壓器點位（核心） |
-| S01 | 台灣電力公司〈全國各縣市再生能源可併網容量〉（[161874](https://data.gov.tw/dataset/161874)） | 交叉檢查 |
+| S02 | 台灣電力公司〈雲林縣再生能源可併網容量〉（[data.gov.tw/dataset/44208](https://data.gov.tw/dataset/44208)） | 雲林的饋線容量與變壓器點位 |
+| S01 | 台灣電力公司〈全國各縣市再生能源可併網容量〉（[161874](https://data.gov.tw/dataset/161874)） | 彰化、嘉義的饋線容量與變壓器點位；各縣鄰縣補值、雲林交叉檢查、全國比較 |
 | S12 | 內政部國土測繪中心〈鄉鎮市區界線(TWD97經緯度)〉（[7441](https://data.gov.tw/dataset/7441)） | 鄉鎮歸屬、底圖參考 |
-| S04 | 立法院預算中心〈115年度中央政府總預算案整體評估報告〉一二、表2 | 雲林區處等待併網（區處層級） |
+| S04 | 立法院預算中心〈115年度中央政府總預算案整體評估報告〉一二、表2 | 各區處等待併網（區處層級） |
 
 原始檔存於 `data/raw/<來源>/<檔案日期>/`，設為唯讀，取得紀錄與 SHA-256 在 `data/manifests/snapshots.csv`；每次檢查來源都記錄在 `data/manifests/checks.csv`。人工擷取的表格在 `data/curated/`，附出處與核對說明。
 
@@ -28,12 +28,14 @@
 ```bash
 uv sync
 uv run python src/ingest/fetch_snapshots.py   # 檢查來源、存檔新版本（--force 忽略排程與條件式請求）
-uv run python src/transform/build_yunlin.py   # 產生 web/data/ 與審計報告
+uv run python src/transform/build_counties.py # 產生 web/data/ 與各縣審計報告
 uv run python src/transform/build_queue.py    # 產生 web/data/queue.json
 python3 -m http.server 8765 --directory web    # 本機預覽 http://localhost:8765
 ```
 
-`build_yunlin.py` 會先驗證座標系統（TWD67 點位必須全部落在陸地上），驗證不通過就停止建置。網站只使用 `data/manifests/published.json` 裡核准過的存檔版本。
+`build_counties.py` 會逐縣驗證座標系統（TWD67 轉換落在陸地外的點必須最少），驗證不通過就停止建置。網站只使用 `data/manifests/published.json` 裡核准過的存檔版本。
+
+縣市清單在 `src/transform/counties.py`。新增縣市＝在清單加一行（台電檔名代號、內政部縣市名、資料來源、對應區處）後重建，並檢查新產生的審計報告。
 
 ## 自動更新
 

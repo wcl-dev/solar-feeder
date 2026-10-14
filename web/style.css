@@ -49,6 +49,10 @@ h1 { margin: 2px 0 4px; font-size: clamp(20px, 3.2vw, 28px); line-height: 1.3; f
 .dates { margin: 0; font-size: 13px; color: var(--ink-2); }
 .dates b { color: var(--ink); font-weight: 600; }
 .head-nav { display: flex; gap: 16px; font-size: 14px; }
+.county-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 8px; font-size: 14px; }
+.county-nav a, .county-nav span { padding: 5px 14px; border: 1px solid var(--axis); border-radius: 999px; text-decoration: none; line-height: 1.4; }
+.county-nav a:hover { border-color: var(--focus); }
+.county-nav [aria-current] { background: var(--ink); border-color: var(--ink); color: var(--surface); font-weight: 600; }
 
 /* KPI tiles */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 20px; }

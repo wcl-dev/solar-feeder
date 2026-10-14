@@ -14,9 +14,9 @@
   const NO_CAP_LABEL = "台電未列容量";
   const CODE_NONE = "無"; // Taipower's placeholder: transformer with no feeder assigned
   const FLAG_TEXT = {
-    no_capacity_row: "台電雲林與全國容量表都沒有列出這條饋線",
+    no_capacity_row: "台電各縣市的容量表都沒有列出這條饋線",
     no_transformer_points: "台電變壓器位置表沒有這條饋線，地圖上無法定位",
-    points_outside_county: "部分變壓器落在雲林縣界外",
+    points_outside_county: "部分變壓器落在縣界外",
     capacity_from_other_county: "鄰縣饋線：容量取自台電全國檔中鄰縣的容量表",
     ambiguous_other_county: "代號在多個鄰縣容量表出現且數值不同，未補值",
     feeder_code_none: "台電變壓器位置表中，這些變壓器的所屬饋線寫「無」",
@@ -38,15 +38,24 @@
   const tag = (kind) => `<span class="tag" data-tag="${kind}" title="${TAG_TIP[kind]}">${kind === "observed" ? "事實" : "計算"}</span>`;
   const swatch = (c) => `<span class="swatch${c === NO_CAP ? " na" : ""}" style="background:${COLORS[c]}" aria-hidden="true"></span>`;
 
-  let S, L, feeders, byId, classes, map, popup;
+  let S, C, L, feeders, byId, classes, map, popup;
   let selected = null;
   const active = new Set();
+  const ctxLayers = []; // other counties' transformers, drawn faded for context: [{ id, county }]
   const bounds = {};
   const sortState = { key: "capacity_kw", dir: "asc" };
 
   // A local file path must never end up in a citation, so file:/blob: pages have no shareable URL.
-  const pageUrl = () => CFG.siteUrl || (/^(file|blob):/.test(location.protocol) ? null : location.href.split("#")[0]);
-  const csvPath = () => downloadHref(`data/download/yunlin_feeders_${L.capacity_date}.csv`);
+  // The default county keeps the bare site URL that was shared before other counties existed.
+  const pageUrl = () => {
+    const base = CFG.siteUrl || (/^(file|blob):/.test(location.protocol) ? null : location.origin + location.pathname);
+    return base && (C.slug === S.default_county ? base : `${base}?county=${C.slug}`);
+  };
+  const countyHref = (slug) => `?county=${slug}`;
+  const csvName = () => `${C.slug}_feeders_${L.capacity_date}.csv`;
+  const csvPath = () => downloadHref(`data/download/${csvName()}`);
+  // Feeder from a neighbouring county's table (only Taipower's national file has those).
+  const isNeighbour = (f) => Boolean(f.capacity_county);
   const archiveUrl = (path = L.archive_path) => (CFG.repoUrl ? `${CFG.repoUrl}/blob/${CFG.repoBranch || "main"}/${path}` : null);
   const classLabel = (c) => (c === NO_CAP ? NO_CAP_LABEL : classes.find((k) => k.id === c).label);
   const feederName = (id) => (id === CODE_NONE ? "（未標饋線）" : id);
@@ -55,17 +64,21 @@
     const get = (u) => (INLINE && u in INLINE
       ? (INLINE[u] == null ? Promise.reject(new Error(`${u}: not embedded`)) : Promise.resolve(INLINE[u]))
       : fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`)))));
-    const [summary, tx, towns, queue] = await Promise.all([
-      get("data/summary.json"),
-      get("data/transformers.geojson"),
-      get("data/townships.geojson"),
+    S = await get("data/summary.json");
+    const want = new URLSearchParams(location.search).get("county");
+    C = S.counties.find((c) => c.slug === want) || S.counties.find((c) => c.slug === S.default_county);
+    const dir = `data/${C.slug}/`;
+    const [fs, tx, towns, townLines, queue] = await Promise.all([
+      get(dir + "feeders.json"),
+      get(dir + "transformers.geojson"),
+      get(dir + "townships.geojson"),
+      get(dir + "town_lines.geojson"),
       get("data/queue.json").catch(() => null),
     ]);
-    S = summary;
-    L = S.latest;
-    feeders = S.feeders;
+    L = C.latest;
+    feeders = fs;
     byId = Object.fromEntries(feeders.map((f) => [f.feeder, f]));
-    // Legend basis = what the map draws (feeders with transformers in Yunlin, incl. neighbour-county feeders).
+    // Legend basis = what the map draws (feeders with transformers in the county, incl. neighbour-county feeders).
     const M = L.stats.map;
     classes = [...S.classes, { id: NO_CAP, label: NO_CAP_LABEL }].map((c) => ({
       ...c, count: M.class_feeders[c.id] ?? 0, points: M.class_transformers[c.id] ?? 0,
@@ -88,15 +101,22 @@
     renderTable();
     renderCitations();
     renderFooter();
-    initMap(tx, towns);
+    initMap(tx, towns, townLines);
     bindCopy();
   }
 
   const STALE_AFTER_DAYS = 45; // sources are checked weekly; this much silence means the automation stopped
 
   function renderHeader() {
-    const checked = (S.source_last_checked || "").slice(0, 10);
-    const days = Math.floor((Date.now() - Date.parse(S.source_last_checked)) / 86400000);
+    document.title = `${C.name}饋線容量現況｜台灣太陽光電併網瓶頸觀測站`;
+    $("h1").textContent = `${C.name}配電饋線：公布可併網容量現況`;
+    $$("[data-county]").forEach((el) => (el.textContent = C[el.dataset.county]));
+    $("#map").setAttribute("aria-label", `${C.name}變壓器位置地圖，依所屬饋線的公布可併網容量著色`);
+    $("#county-nav").innerHTML = S.counties.map((c) => (c.slug === C.slug
+      ? `<span aria-current="page">${esc(c.name)}</span>`
+      : `<a href="${countyHref(c.slug)}">${esc(c.name)}</a>`)).join("");
+    const checked = (C.source_last_checked || "").slice(0, 10);
+    const days = Math.floor((Date.now() - Date.parse(C.source_last_checked)) / 86400000);
     if (days > STALE_AFTER_DAYS) {
       $(".site-head .wrap").insertAdjacentHTML("beforeend",
         `<p class="map-warn stale" role="status">本站已 ${days} 天沒有檢查台電來源（正常為每週一次），台電可能已發布新版，這裡的資料未必是最新的。</p>`);
@@ -107,10 +127,10 @@
 
   function renderKpis() {
     const st = L.stats;
-    const hist = S.history.map((h) => `<span>${h.capacity_date.slice(0, 7)}</span><b>${pct(h.stats.zero_share)}</b>`).join("");
+    const hist = C.history.map((h) => `<span>${h.capacity_date.slice(0, 7)}</span><b>${pct(h.stats.zero_share)}</b>`).join("");
     $("#kpis").innerHTML = `
       <div class="tile">
-        <p class="tile-label">雲林容量表列出的饋線 ${tag("observed")}</p>
+        <p class="tile-label">${esc(C.short)}容量表列出的饋線 ${tag("observed")}</p>
         <p class="tile-value">${fmt(st.feeders_with_capacity)}<small>條</small></p>
         <p class="tile-foot">變壓器 ${fmt(st.transformer_points)} 具（台電變壓器位置表）</p>
       </div>
@@ -135,7 +155,8 @@
     const M = L.stats.map;
     const total = classes.reduce((a, c) => a + c.count, 0);
     const totalPts = M.transformers;
-    const sub = { 0: "台電公布值為 0", [NO_CAP]: "雲林與全國容量表都沒有" };
+    const sub = { 0: "台電公布值為 0", [NO_CAP]: "各縣市容量表都沒有" };
+    const others = S.counties.filter((c) => c.slug !== C.slug).map((c) => c.name).join("、");
     $("#legend").innerHTML = classes.map((c) => `
       <li><button type="button" aria-pressed="true" data-class="${c.id}">
         ${swatch(c.id)}
@@ -143,7 +164,7 @@
         <span class="cnt">${fmt(c.count)} 條<small>變壓器 ${pct(c.points / totalPts)}</small></span>
         <span class="bar" aria-hidden="true"><i style="width:${(c.points / totalPts) * 100}%;background:${COLORS[c.id]}"></i></span>
       </button></li>`).join("") +
-      `<li class="legend-note">地圖上的每個點是一具變壓器，顏色是它所屬饋線的公布容量。公布為 0 的多是長饋線、變壓器多：它們占雲林容量表饋線的 ${pct(L.stats.zero_share)}，卻占地圖上變壓器的 ${pct(byClassPts(0, totalPts))}，所以橘色看起來比條數比例多。<br>條數以地圖上的 ${fmt(total)} 條饋線計，含 ${fmt(L.stats.feeders_other_county)} 條供電到雲林的鄰縣饋線，不含 ${fmt(L.stats.feeders_no_points)} 條沒有位置資料的饋線。</li>` +
+      `<li class="legend-note">地圖上的每個點是一具變壓器，顏色是它所屬饋線的公布容量。公布為 0 的多是長饋線、變壓器多：它們占${esc(C.short)}容量表饋線的 ${pct(L.stats.zero_share)}，卻占地圖上變壓器的 ${pct(byClassPts(0, totalPts))}，所以橘色看起來比條數比例多。<br>條數以地圖上的 ${fmt(total)} 條饋線計，含 ${fmt(L.stats.feeders_other_county)} 條供電到${esc(C.short)}的鄰縣饋線，不含 ${fmt(L.stats.feeders_no_points)} 條沒有位置資料的饋線。${others ? `淡色的點是${esc(others)}，不計入以上統計。` : ""}</li>` +
       `<li class="legend-actions"><button type="button" id="legend-all">全部顯示</button>・<button type="button" id="legend-zero">只看公布為 0</button></li>`;
     $("#legend").addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -165,24 +186,27 @@
   }
 
   function applyClassFilter() {
-    if (!map || !map.getLayer("tx")) return;
-    map.setFilter("tx", ["in", ["get", "c"], ["literal", [...active]]]);
+    if (!map) return;
+    // With every class on, no filter: other counties may have classes this one lacks.
+    const filter = classes.every((c) => active.has(c.id)) ? null : ["in", ["get", "c"], ["literal", [...active]]];
+    ["tx", ...ctxLayers.map((l) => l.id)].forEach((id) => map.getLayer(id) && map.setFilter(id, filter));
   }
 
   function renderQueue(q) {
-    if (!q) return;
+    const d = q && q.districts && q.districts.find((x) => x.district === C.district);
+    if (!d) return;
     const band = $("#queue-band");
     band.hidden = false;
     band.innerHTML = `
       <div>
-        <h2>等待併網：${esc(q.district)} ${tag("observed")}</h2>
+        <h2>等待併網：${esc(d.office)} ${tag("observed")}</h2>
         <p class="scope">這是台電「區營業處」層級的彙總數字，無法定位到鄉鎮、饋線或個別案場，所以不畫在地圖上，也不分攤到鄉鎮。</p>
       </div>
       <div class="band-figs">
-        <div><div class="v">${fmt(q.cases)}<small>件</small></div><div class="l">太陽光電等待併網</div></div>
-        <div><div class="v">${fmt(q.capacity_mw, 2)}<small>MW</small></div><div class="l">合計容量</div></div>
-        <div><div class="v">${fmt(q.over_2y_cases)}<small>件</small></div><div class="l">其中「超過2年以上」（${fmt(q.over_2y_mw, 2)} MW）</div></div>
-        <div><div class="v">${(q.share_of_listed_mw * 100).toFixed(2)}<small>%</small></div><div class="l">占表列 ${q.listed_districts} 個區處等待容量${q.rank_by_mw_among_listed === 1 ? "，表列最高" : ""}</div></div>
+        <div><div class="v">${fmt(d.cases)}<small>件</small></div><div class="l">太陽光電等待併網</div></div>
+        <div><div class="v">${fmt(d.capacity_mw, 2)}<small>MW</small></div><div class="l">合計容量</div></div>
+        <div><div class="v">${fmt(d.over_2y_cases)}<small>件</small></div><div class="l">其中「超過2年以上」（${fmt(d.over_2y_mw, 2)} MW）</div></div>
+        <div><div class="v">${(d.share_of_listed_mw * 100).toFixed(2)}<small>%</small></div><div class="l">占表列 ${q.listed_districts} 個區處等待容量，表列第 ${d.rank_by_mw_among_listed}${d.rank_by_mw_among_listed === 1 ? "（最高）" : ""}</div></div>
       </div>
       <p class="src">截至 ${esc(q.as_of)}。${esc(q.citation)}<a href="${esc(q.page_url)}">原文頁面</a>・<a href="${esc(q.source_url)}">PDF</a>（本站存檔版本 ${esc(q.snapshot_id)}）。${esc(q.note)}</p>`;
   }
@@ -191,8 +215,9 @@
     const N = S.national;
     if (!N) { $("#national").hidden = true; return; }
     const bar = (share, color) => `<div class="ibar"><span><i style="width:${share * 100}%${color ? `;background:${color}` : ""}"></i></span><b>${pct(share)}</b></div>`;
+    const built = Object.fromEntries(S.counties.map((c) => [c.code, c]));
     $("#county-table tbody").innerHTML = N.counties.map((c) => `
-      <tr class="${c.code === "YUNLIN" ? "is-here" : ""}"><th scope="row">${esc(c.name)}</th>
+      <tr class="${c.code === C.code ? "is-here" : ""}"><th scope="row">${built[c.code] && c.code !== C.code ? `<a href="${countyHref(built[c.code].slug)}">${esc(c.name)}</a>` : esc(c.name)}</th>
         <td class="num">${fmt(c.feeders)}</td>
         <td class="num">${fmt(c.zero)}</td>
         <td>${bar(c.zero_share)}</td>
@@ -204,7 +229,7 @@
 
     if (!q || !q.districts) { $("#district-block").hidden = true; return; }
     $("#district-table tbody").innerHTML = q.districts.map((d) => `
-      <tr class="${d.district === "雲林" ? "is-here" : ""}"><th scope="row">${esc(d.district)}</th>
+      <tr class="${d.district === C.district ? "is-here" : ""}"><th scope="row">${esc(d.district)}</th>
         <td>${esc(d.service_area)}</td>
         <td class="num">${fmt(d.cases)}</td>
         <td class="num">${fmt(d.capacity_mw, 2)}</td>
@@ -217,7 +242,7 @@
 
   function renderTowns(towns) {
     const rows = towns.features.map((t) => t.properties.name).map((name) => {
-      const fs = feeders.filter((f) => f.main_township === name && f.capacity_source === "S02");
+      const fs = feeders.filter((f) => f.main_township === name && f.capacity_kw != null && !isNeighbour(f));
       const vals = fs.map((f) => f.capacity_kw).sort((a, b) => a - b);
       const mid = vals.length ? (vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2) : null;
       const zero = fs.filter((f) => f.capacity_kw <= 0).length;
@@ -235,7 +260,9 @@
     $("#town-filter").insertAdjacentHTML("beforeend",
       towns.features.map((t) => `<option>${esc(t.properties.name)}</option>`).join(""));
     $("#dl-csv").href = csvPath();
-    $("#dl-csv").download = `yunlin_feeders_${L.capacity_date}.csv`;
+    $("#dl-csv").download = csvName();
+    const ex = feeders.reduce((a, b) => (b.transformer_points > a.transformer_points ? b : a));
+    $("#q").placeholder = `例如 ${ex.feeder}、${towns.features[0].properties.name}`;
     $("#q").addEventListener("input", renderTable);
     $("#town-filter").addEventListener("change", renderTable);
     $$("#feeders thead button").forEach((b) => b.addEventListener("click", () => {
@@ -269,7 +296,7 @@
     $$("#feeders thead button").forEach((b) => (b.dataset.dir = b.dataset.sort === key ? dir : ""));
     $("#feeders tbody").innerHTML = rows.map((f) => `
       <tr data-id="${esc(f.feeder)}" aria-selected="${f.feeder === selected}">
-        <td><b>${esc(feederName(f.feeder))}</b>${f.capacity_source === "S01" ? `<small class="src-note">${esc(f.capacity_county)}</small>` : ""}</td>
+        <td><b>${esc(feederName(f.feeder))}</b>${isNeighbour(f) ? `<small class="src-note">${esc(f.capacity_county)}</small>` : ""}</td>
         <td class="num">${fmt(f.capacity_kw, 1)}</td>
         <td><span class="cls">${swatch(f.class)}${esc(classLabel(f.class))}</span></td>
         <td>${esc(f.main_township || "—")}</td>
@@ -282,19 +309,22 @@
   function dataCitation(feederId) {
     const year = L.capacity_date.slice(0, 4);
     const f = feederId ? byId[feederId] : null;
-    const national = f && f.capacity_source === "S01";
-    const src = national ? S.sources.S01 : S.sources.S02;
-    const snap = national ? L.s01_snapshot_id : L.snapshot_id;
-    const arch = archiveUrl(national ? L.s01_archive_path : L.archive_path);
+    const nb = f && isNeighbour(f);
+    const srcId = nb ? "S01" : C.source;
+    const src = S.sources[srcId];
+    const snap = nb ? L.s01_snapshot_id : L.snapshot_id;
+    const arch = archiveUrl(nb ? L.s01_archive_path : L.archive_path);
+    // The national file holds every county's table: name the one the value comes from.
+    const table = srcId === "S01" ? `${nb ? f.capacity_county : C.short}容量表` : "";
     return `${src.publisher}（${year}）。${src.title}［資料集；容量表檔案日期 ${L.capacity_date}］。政府資料開放平臺，${src.dataset_page}。` +
-      (feederId ? `${national ? `${f.capacity_county}容量表，` : ""}饋線 ${feederName(feederId)}。` : "") +
+      (feederId ? `${table ? `${table}，` : ""}饋線 ${feederName(feederId)}。` : (table ? `${table}。` : "")) +
       `本站存檔版本 ${snap}${arch ? `，${arch}` : ""}。` +
       (feederId && pageUrl() ? `檢視頁面：${pageUrl()}#feeder=${encodeURIComponent(feederId)}。` : "") +
       `取用日期 ${today()}。`;
   }
 
   function siteCitation() {
-    return `台灣太陽光電併網瓶頸觀測站（${S.built_on.slice(0, 4)}）。雲林縣配電饋線：公布可併網容量現況（方法版本 ${S.method_version}；台電容量表 ${L.capacity_date}）。${pageUrl() || "（正式網址發布後提供）"}。取用日期 ${today()}。`;
+    return `台灣太陽光電併網瓶頸觀測站（${S.built_on.slice(0, 4)}）。${C.name}配電饋線：公布可併網容量現況（方法版本 ${S.method_version}；台電容量表 ${L.capacity_date}）。${pageUrl() || "（正式網址發布後提供）"}。取用日期 ${today()}。`;
   }
 
   function renderCitations() {
@@ -305,7 +335,7 @@
   function renderFooter() {
     const repo = CFG.repoUrl ? `程式與存檔：<a href="${esc(CFG.repoUrl)}">${esc(CFG.repoUrl.replace("https://", ""))}</a>。` : "";
     $("#foot").innerHTML = `
-      <p>資料來源：台灣電力公司〈${esc(S.sources.S02.title)}〉（<a href="${esc(S.sources.S02.dataset_page)}">政府資料開放平臺</a>）；內政部國土測繪中心〈${esc(S.sources.S12.title)}〉（<a href="${esc(S.sources.S12.dataset_page)}">政府資料開放平臺</a>）。依<a href="${esc(S.license.url)}">${esc(S.license.name)}</a>利用。</p>
+      <p>資料來源：台灣電力公司〈${esc(S.sources[C.source].title)}〉（<a href="${esc(S.sources[C.source].dataset_page)}">政府資料開放平臺</a>）；內政部國土測繪中心〈${esc(S.sources.S12.title)}〉（<a href="${esc(S.sources.S12.dataset_page)}">政府資料開放平臺</a>）。依<a href="${esc(S.license.url)}">${esc(S.license.name)}</a>利用。</p>
       <p>本站為獨立整理，不代表台電或政府機關立場，也不是正式併網判定或選址工具。官方最新參考值請查<a href="https://service.taipower.com.tw/hcweb/geohc/" rel="noopener">台電配電級再生能源可併容量查詢系統</a>。</p>
       <p>底圖：OpenFreeMap、© OpenStreetMap 貢獻者。${repo}<a href="methods.html">方法與資料</a></p>`;
   }
@@ -315,13 +345,13 @@
     // These three are already explained by the card's own rows and callout.
     const explained = new Set(["capacity_from_other_county", "no_capacity_row", "feeder_code_none"]);
     const flags = (f.flags ? f.flags.split(";") : []).filter((x) => !explained.has(x));
-    const national = f.capacity_source === "S01";
+    const national = isNeighbour(f);
     const arch = archiveUrl(national ? L.s01_archive_path : L.archive_path);
     const snap = national ? L.s01_snapshot_id : L.snapshot_id;
     const callout = f.feeder === CODE_NONE
       ? `<b>這些變壓器沒有標所屬饋線。</b>台電變壓器位置表中，它們的「所屬饋線」欄位寫「無」，所以無法對應到任何容量。`
       : f.capacity_kw == null
-      ? `<b>台電沒有公布這條饋線的容量。</b>它的變壓器在台電的位置表裡，但雲林與全國的容量表都沒有列出；原因尚待向台電確認。`
+      ? `<b>台電沒有公布這條饋線的容量。</b>它的變壓器在台電的位置表裡，但台電各縣市的容量表都沒有列出；原因尚待向台電確認。`
       : zero
         ? `<b>公布值為 0，不等於無法併網。</b>這是台電在特定日期與計算條件下的參考值；實際能否併網須經台電個案審查，也受案件順序、上游變電設備等影響。`
         : `<b>這是參考值，不是保證。</b>實際可併容量會隨新案件扣減，也受上游變電設備限制；不可與其他饋線的數字加總。`;
@@ -334,9 +364,9 @@
       <div class="class-chip">${swatch(f.class)}級距：${esc(classLabel(f.class))} ${tag("observed")}</div>
       <dl class="meta">
         <dt>資料日期</dt><dd>台電容量表 ${esc(L.capacity_date)}</dd>
-        ${national ? `<dt>容量來源</dt><dd style="white-space:normal">鄰縣饋線：取自台電全國檔的${esc(f.capacity_county)}容量表（雲林檔未列）</dd>` : ""}
+        ${national ? `<dt>容量來源</dt><dd style="white-space:normal">鄰縣饋線：取自台電全國檔的${esc(f.capacity_county)}容量表（${esc(C.short)}容量表未列）</dd>` : ""}
         <dt>電網層級</dt><dd>配電饋線</dd>
-        <dt>雲林境內變壓器</dt><dd>${fmt(f.transformer_points)} 具（位置表 ${esc(L.points_date)}）</dd>
+        <dt>${esc(C.short)}境內變壓器</dt><dd>${fmt(f.transformer_points)} 具（位置表 ${esc(L.points_date)}）</dd>
         <dt>主要鄉鎮</dt><dd>${f.main_township ? `${esc(f.main_township)}（${pct(f.main_township_share)}的變壓器）` : "—"} ${tag("derived")}</dd>
         ${f.townships && f.townships.includes("、") ? `<dt>涵蓋鄉鎮</dt><dd style="white-space:normal">${esc(f.townships)}</dd>` : ""}
       </dl>
@@ -352,7 +382,7 @@
       </div>
       <ul class="links">
         <li><a href="https://service.taipower.com.tw/hcweb/geohc/" target="_blank" rel="noopener">到台電 FGIS 查最新官方值 ↗</a></li>
-        <li><a href="${csvPath()}" download="yunlin_feeders_${esc(L.capacity_date)}.csv">下載本版饋線表（CSV）</a></li>
+        <li><a href="${csvPath()}" download="${esc(csvName())}">下載本版饋線表（CSV）</a></li>
         <li>原始檔存檔：${esc(snap)}${arch ? `（<a href="${esc(arch)}">檔案</a>）` : ""}</li>
       </ul>`;
   }
@@ -382,7 +412,7 @@
     if (map && map.getLayer("tx-sel")) map.setFilter("tx-sel", ["==", ["get", "f"], ""]);
   }
 
-  function initMap(tx, towns) {
+  function initMap(tx, towns, townLines) {
     const pts = [];
     const walk = (c) => (typeof c[0] === "number" ? pts.push(c) : c.forEach(walk));
     towns.features.forEach((f) => walk(f.geometry.coordinates));
@@ -426,13 +456,14 @@
           properties: { name: f.properties.name },
         })),
       };
-      map.addSource("towns", { type: "geojson", data: towns });
+      // Only the lines between townships: the county's outer edge would run offshore along the coast.
+      map.addSource("town-lines", { type: "geojson", data: townLines });
       map.addSource("town-labels", { type: "geojson", data: labels });
       map.addSource("tx", { type: "geojson", data: tx });
 
       const color = ["match", ["get", "c"], 0, COLORS[0], 1, COLORS[1], 2, COLORS[2], 3, COLORS[3], 4, COLORS[4], "rgba(0,0,0,0)"];
       const radius = ["interpolate", ["linear"], ["zoom"], 8, 0.9, 10, 1.5, 12, 2.6, 14, 4.2, 16, 6.5];
-      map.addLayer({ id: "town-line", type: "line", source: "towns", paint: { "line-color": "#9a988f", "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.6, 13, 1.4] } });
+      map.addLayer({ id: "town-line", type: "line", source: "town-lines", paint: { "line-color": "#9a988f", "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.6, 13, 1.4] } });
       map.addLayer({
         id: "tx", type: "circle", source: "tx",
         // No class is drawn on top: stacking one class above the rest would exaggerate its area.
@@ -461,28 +492,68 @@
         paint: { "text-color": "#3d3c39", "text-halo-color": "rgba(252,252,251,0.95)", "text-halo-width": 1.6 },
       });
       applyClassFilter();
+      addContext(color);
 
       popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
-      const hit = (pt) => map.queryRenderedFeatures([[pt.x - 6, pt.y - 6], [pt.x + 6, pt.y + 6]], { layers: ["tx"] });
+      // Topmost first, so this county's points win over the faded context underneath.
+      const hit = (pt) => map.queryRenderedFeatures([[pt.x - 6, pt.y - 6], [pt.x + 6, pt.y + 6]],
+        { layers: ["tx", ...ctxLayers.map((l) => l.id)] });
+      const ctxOf = (ft) => ctxLayers.find((l) => l.id === ft.layer.id)?.county;
       map.on("mousemove", (e) => {
         const fs = hit(e.point);
         map.getCanvas().style.cursor = fs.length ? "pointer" : "";
         if (!fs.length) { popup.remove(); return; }
+        const other = ctxOf(fs[0]);
+        if (other) {
+          popup.setLngLat(e.lngLat).setHTML(
+            `<div class="pop"><b>${esc(other.name)}・${esc(feederName(fs[0].properties.f))}</b>　${esc(classLabel(fs[0].properties.c))}<br><small>點選切換到${esc(other.name)}</small></div>`
+          ).addTo(map);
+          return;
+        }
         const f = byId[fs[0].properties.f];
         if (!f) return;
         popup.setLngLat(e.lngLat).setHTML(
-          `<div class="pop"><b>${esc(feederName(f.feeder))}</b>　${f.capacity_kw == null ? NO_CAP_LABEL : `${fmt(f.capacity_kw, 1)} kW`}${f.capacity_source === "S01" ? `（${esc(f.capacity_county)}）` : ""}<br><small>點選看詳細與引用</small></div>`
+          `<div class="pop"><b>${esc(feederName(f.feeder))}</b>　${f.capacity_kw == null ? NO_CAP_LABEL : `${fmt(f.capacity_kw, 1)} kW`}${isNeighbour(f) ? `（${esc(f.capacity_county)}）` : ""}<br><small>點選看詳細與引用</small></div>`
         ).addTo(map);
       });
       map.on("mouseout", () => popup.remove());
       map.on("click", (e) => {
         const fs = hit(e.point);
-        if (fs.length) selectFeeder(fs[0].properties.f);
+        if (!fs.length) return;
+        const other = ctxOf(fs[0]);
+        if (other) location.href = `${countyHref(other.slug)}#feeder=${encodeURIComponent(fs[0].properties.f)}`;
+        else selectFeeder(fs[0].properties.f);
       });
 
       const m = location.hash.match(/feeder=([^&]+)/);
       if (m) selectFeeder(decodeURIComponent(m[1]), { fly: true });
     });
+  }
+
+  // The other counties' transformers, faded, smaller and underneath, so patterns across county lines stay
+  // visible. Only the points are dimmed: a veil cut along county boundaries would not match the basemap's
+  // coastline. Loaded after this county's map is up; the legend and statistics never count them.
+  function addContext(color) {
+    const get = (u) => (INLINE && u in INLINE ? Promise.resolve(INLINE[u]) : fetch(u).then((r) => (r.ok ? r.json() : Promise.reject())));
+    S.counties.filter((o) => o.slug !== C.slug).forEach((o) => get(`data/${o.slug}/transformers.geojson`).then((data) => {
+      const id = `ctx-${o.slug}`;
+      if (!data || map.getLayer(id)) return;
+      map.addSource(id, { type: "geojson", data });
+      map.addLayer({
+        id, type: "circle", source: id,
+        layout: { "circle-sort-key": ["case", ["==", ["get", "c"], -1], 0, 1] },
+        paint: {
+          "circle-color": color,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 0.7, 10, 1.1, 12, 2, 14, 3.2, 16, 5],
+          "circle-opacity": 0.2,
+          "circle-stroke-width": ["case", ["==", ["get", "c"], -1], 0.8, 0],
+          "circle-stroke-color": COLORS[-1],
+          "circle-stroke-opacity": 0.2,
+        },
+      }, "town-line");
+      ctxLayers.push({ id, county: o });
+      applyClassFilter();
+    }).catch(() => {}));
   }
 
   function bindCopy() {

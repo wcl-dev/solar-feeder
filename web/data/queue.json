@@ -1,38 +1,9 @@
 {
  "source_id": "S04",
- "district": "台電雲林區營業處",
  "as_of": "2025-06-30",
- "cases": 439,
- "capacity_mw": 183.27,
- "over_2y_cases": 219,
- "over_2y_mw": 92.85,
- "buckets": [
-  {
-   "bucket": "半年以內",
-   "cases": 7,
-   "capacity_mw": 2.06
-  },
-  {
-   "bucket": "超過半年1年以內",
-   "cases": 32,
-   "capacity_mw": 11.39
-  },
-  {
-   "bucket": "超過1年2年以內",
-   "cases": 181,
-   "capacity_mw": 76.97
-  },
-  {
-   "bucket": "超過2年以上",
-   "cases": 219,
-   "capacity_mw": 92.85
-  }
- ],
  "listed_districts": 7,
  "listed_total_cases": 1500,
  "listed_total_mw": 750.44,
- "share_of_listed_mw": 0.2442,
- "rank_by_mw_among_listed": 1,
  "citation": "來源：立法院預算中心〈115年度中央政府總預算案整體評估報告〉一二、表2〈截至114年6月底止太陽光電裝置等候併網件數及裝置容量統計表〉（PDF 第 3 頁），資料來源為台電公司 114 年 8 月提供。",
  "note": "表2只列 7 個區處（合計 1,500 件、750.44 MW），未說明其他區處為零或未列入，因此不稱為全臺總數。",
  "source_url": "https://www.ly.gov.tw/Pages/ashx/File.ashx?FilePath=~/File/Attach/255076/File_19860273.pdf",
@@ -44,66 +15,234 @@
  "districts": [
   {
    "district": "雲林",
+   "office": "台電雲林區營業處",
    "service_area": "雲林縣",
    "cases": 439,
    "capacity_mw": 183.27,
    "share_of_listed_mw": 0.2442,
+   "rank_by_mw_among_listed": 1,
    "over_2y_cases": 219,
-   "over_2y_mw": 92.85
+   "over_2y_mw": 92.85,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 7,
+     "capacity_mw": 2.06
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 32,
+     "capacity_mw": 11.39
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 181,
+     "capacity_mw": 76.97
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 219,
+     "capacity_mw": 92.85
+    }
+   ]
   },
   {
    "district": "屏東",
+   "office": "台電屏東區營業處",
    "service_area": "屏東縣",
    "cases": 297,
    "capacity_mw": 147.92,
    "share_of_listed_mw": 0.1971,
+   "rank_by_mw_among_listed": 2,
    "over_2y_cases": 134,
-   "over_2y_mw": 80.62
+   "over_2y_mw": 80.62,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 42,
+     "capacity_mw": 16.92
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 51,
+     "capacity_mw": 18.3
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 70,
+     "capacity_mw": 32.08
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 134,
+     "capacity_mw": 80.62
+    }
+   ]
   },
   {
    "district": "嘉義",
+   "office": "台電嘉義區營業處",
    "service_area": "嘉義縣/市",
    "cases": 154,
    "capacity_mw": 116.51,
    "share_of_listed_mw": 0.1553,
+   "rank_by_mw_among_listed": 3,
    "over_2y_cases": 70,
-   "over_2y_mw": 60.03
+   "over_2y_mw": 60.03,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 13,
+     "capacity_mw": 9.45
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 9,
+     "capacity_mw": 4.73
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 62,
+     "capacity_mw": 42.29
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 70,
+     "capacity_mw": 60.03
+    }
+   ]
   },
   {
    "district": "新營",
+   "office": "台電新營區營業處",
    "service_area": "台南市",
    "cases": 133,
    "capacity_mw": 104.81,
    "share_of_listed_mw": 0.1397,
+   "rank_by_mw_among_listed": 4,
    "over_2y_cases": 61,
-   "over_2y_mw": 50.61
+   "over_2y_mw": 50.61,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 4,
+     "capacity_mw": 1.59
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 27,
+     "capacity_mw": 19.27
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 41,
+     "capacity_mw": 33.34
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 61,
+     "capacity_mw": 50.61
+    }
+   ]
   },
   {
    "district": "台南",
+   "office": "台電台南區營業處",
    "service_area": "台南市",
    "cases": 196,
    "capacity_mw": 73.18,
    "share_of_listed_mw": 0.0975,
+   "rank_by_mw_among_listed": 5,
    "over_2y_cases": 42,
-   "over_2y_mw": 27.52
+   "over_2y_mw": 27.52,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 18,
+     "capacity_mw": 6.09
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 58,
+     "capacity_mw": 13.15
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 78,
+     "capacity_mw": 26.42
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 42,
+     "capacity_mw": 27.52
+    }
+   ]
   },
   {
    "district": "彰化",
+   "office": "台電彰化區營業處",
    "service_area": "彰化縣",
    "cases": 173,
    "capacity_mw": 68.37,
    "share_of_listed_mw": 0.0911,
+   "rank_by_mw_among_listed": 6,
    "over_2y_cases": 70,
-   "over_2y_mw": 29.8
+   "over_2y_mw": 29.8,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 26,
+     "capacity_mw": 7.81
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 25,
+     "capacity_mw": 10.13
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 52,
+     "capacity_mw": 20.63
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 70,
+     "capacity_mw": 29.8
+    }
+   ]
   },
   {
    "district": "南投",
+   "office": "台電南投區營業處",
    "service_area": "南投縣",
    "cases": 108,
    "capacity_mw": 56.38,
    "share_of_listed_mw": 0.0751,
+   "rank_by_mw_among_listed": 7,
    "over_2y_cases": 29,
-   "over_2y_mw": 14.21
+   "over_2y_mw": 14.21,
+   "buckets": [
+    {
+     "bucket": "半年以內",
+     "cases": 0,
+     "capacity_mw": 0.0
+    },
+    {
+     "bucket": "超過半年1年以內",
+     "cases": 30,
+     "capacity_mw": 21.53
+    },
+    {
+     "bucket": "超過1年2年以內",
+     "cases": 49,
+     "capacity_mw": 20.64
+    },
+    {
+     "bucket": "超過2年以上",
+     "cases": 29,
+     "capacity_mw": 14.21
+    }
+   ]
   }
  ],
  "coverage_source": {
