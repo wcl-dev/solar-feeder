@@ -1,6 +1,6 @@
 # 嘉義縣市再生能源可併網容量：資料審計
 
-> 本檔由 `src/transform/build_counties.py` 自動產生（方法版本 0.3.0，建置日 2026-10-19）。請勿手動編輯。
+> 本檔由 `src/transform/build_counties.py` 自動產生（方法版本 0.3.0，建置日 2026-10-26）。請勿手動編輯。
 
 來源：台灣電力公司全國各縣市再生能源可併網容量（S01，https://data.gov.tw/dataset/161874）。
 

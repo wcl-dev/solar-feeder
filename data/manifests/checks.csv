@@ -35,3 +35,5 @@ checked_at,source_id,result,sha256,snapshot_id,via
 2026-10-12T06:40:06Z,S02,not_modified,d15080778cd7a1e7a6e5d2fc158d0e37ee765662d75ee43d64886f703eaf2c22,S02-2026-04-27,direct
 2026-10-19T05:26:44Z,S01,error,,,
 2026-10-19T05:28:40Z,S02,error,,,
+2026-10-26T05:30:50Z,S01,error,,,
+2026-10-26T05:33:16Z,S02,error,,,
