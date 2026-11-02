@@ -39,14 +39,11 @@ jobs:
   check:
     if: github.event.schedule != '0 1 15 9 *'
     runs-on: ubuntu-latest
-    outputs:
-      new_snapshots: ${{ steps.fetch.outputs.new_snapshots }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
-      - id: fetch
-        env:
+      - env:
           VIA_WAYBACK: ${{ inputs.via_wayback }}
         run: |
           if [ "$VIA_WAYBACK" = "true" ]; then
@@ -67,24 +64,37 @@ jobs:
             git commit -m "Source check $(date -u +%Y-%m-%d)"
             git push
           fi
-      - name: Open a review PR for new snapshots
-        if: steps.fetch.outputs.new_snapshots != ''
+      # Driven by the manifest, not by what this run fetched, so a failed attempt is retried
+      # by the next check. A closed PR counts as a review decision and is not reopened.
+      - name: Open or refresh the review PR for snapshots awaiting approval
         env:
           GH_TOKEN: ${{ github.token }}
-          NEW_SNAPSHOTS: ${{ steps.fetch.outputs.new_snapshots }}
         run: |
-          ids="${NEW_SNAPSHOTS//,/ }"
-          branch="data/${NEW_SNAPSHOTS//,/_}"
+          archived="$(uv run python src/ingest/approve.py --pending)"
+          pending="$(printf '%s\n' "$archived" | grep -E '^S0[12]-' | paste -sd ' ' -)"
+          if [ -z "$pending" ]; then
+            echo "Nothing awaiting approval."
+            exit 0
+          fi
+          branch="data/${pending// /_}"
+          state="$(gh pr list --head "$branch" --state all --json state --jq '.[0].state // ""')"
+          if [ "$state" = "CLOSED" ] || [ "$state" = "MERGED" ]; then
+            echo "$branch was already reviewed ($state); use approve.py to publish it by hand."
+            exit 0
+          fi
           uv run python src/report/summarize_change.py > "$RUNNER_TEMP/pr_body.md"
           git switch -c "$branch"
-          uv run python src/ingest/approve.py $ids
+          uv run python src/ingest/approve.py $pending
           uv run python src/transform/build_counties.py
           uv run python src/transform/build_queue.py
           git add data web docs
-          git commit -m "Publish $NEW_SNAPSHOTS"
-          git push -u origin "$branch"
-          gh pr create --base main --head "$branch" \
-            --title "新版資料待審：$NEW_SNAPSHOTS" --body-file "$RUNNER_TEMP/pr_body.md"
+          git commit -m "Publish $pending"
+          # Rebuilt from main every week, so an open PR never conflicts with the weekly check commits.
+          git push --force -u origin "$branch"
+          if [ "$state" != "OPEN" ]; then
+            gh pr create --base main --head "$branch" \
+              --title "新版資料待審：$pending" --body-file "$RUNNER_TEMP/pr_body.md"
+          fi
 
   deploy:
     needs: check

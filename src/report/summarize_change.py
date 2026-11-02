@@ -32,7 +32,11 @@ EXPECTED_COLUMNS = {"capacity": ["FEEDER", "CAPACITY"], "tr_feeder": ["ROWNUM", 
 def load(row: dict, code: str) -> dict:
     with zipfile.ZipFile(ROOT / row["archive_path"]) as z:
         def member(suffix: str) -> tuple[list[str], list[dict]]:
-            name = next(n for n in z.namelist() if n.upper() == f"{code}_{suffix}.CSV".upper())
+            # Bare names: the national file's members sit in a 001/ folder since the 2026-10 release.
+            wanted = f"{code}_{suffix}.csv".upper()
+            name = next((n for n in z.namelist() if n.rsplit("/", 1)[-1].upper() == wanted), None)
+            if name is None:
+                raise ValueError(f"{row['snapshot_id']}: no {wanted} in the ZIP; did Taipower change the file layout?")
             reader = csv.DictReader(io.TextIOWrapper(z.open(name), encoding="utf-8-sig"))
             rows = list(reader)
             return reader.fieldnames or [], rows

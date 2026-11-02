@@ -98,18 +98,23 @@ COUNTY_DISPLAY = {
 NOT_IN_NATIONAL_FILE = ["澎湖縣", "金門縣", "連江縣"]
 
 
+def members_by_name(z: zipfile.ZipFile) -> dict[str, zipfile.ZipInfo]:
+    """ZIP files by bare name: the national file's members sit in a 001/ folder since the 2026-10 release."""
+    return {i.filename.rsplit("/", 1)[-1]: i for i in z.infolist() if not i.is_dir()}
+
+
 def national_stats(s01_row: pd.Series) -> dict:
     """Per-county feeder statistics from one national file: same date and definition for every county."""
     counties, dates = [], set()
     with zipfile.ZipFile(ROOT / s01_row.archive_path) as z:
-        for info in z.infolist():
-            name = info.filename
+        members = members_by_name(z)
+        for name, info in members.items():
             if not name.endswith("_capacity.csv") or name.startswith("schema-"):
                 continue
             code = name.removesuffix("_capacity.csv")
             dates.add(date(*info.date_time[:3]).isoformat())
-            v = pd.read_csv(io.BytesIO(z.read(name)), encoding="utf-8-sig", dtype={"FEEDER": str}).CAPACITY
-            transformers = sum(1 for _ in z.open(f"{code}_tr_feeder.csv")) - 1
+            v = pd.read_csv(io.BytesIO(z.read(info)), encoding="utf-8-sig", dtype={"FEEDER": str}).CAPACITY
+            transformers = sum(1 for _ in z.open(members[f"{code}_tr_feeder.csv"])) - 1
             counties.append({
                 "code": code, "name": COUNTY_DISPLAY.get(code, code), "feeders": int(len(v)),
                 "zero": int((v <= 0).sum()), "zero_share": round(float((v <= 0).mean()), 4),
@@ -134,11 +139,11 @@ def other_county_capacity(s01_zip: Path, exclude: str) -> dict[str, list[tuple[s
     """
     out: dict[str, list[tuple[str, float]]] = {}
     with zipfile.ZipFile(s01_zip) as z:
-        for name in z.namelist():
+        for name, info in members_by_name(z).items():
             if not name.endswith("_capacity.csv") or name.startswith("schema-") or name.startswith(f"{exclude}_"):
                 continue
             county = name.removesuffix("_capacity.csv")
-            frame = pd.read_csv(io.BytesIO(z.read(name)), encoding="utf-8-sig", dtype={"FEEDER": str})
+            frame = pd.read_csv(io.BytesIO(z.read(info)), encoding="utf-8-sig", dtype={"FEEDER": str})
             for fid, kw in zip(frame.FEEDER.str.strip(), frame.CAPACITY):
                 out.setdefault(fid, []).append((county, float(kw)))
     return out
@@ -161,7 +166,11 @@ def classify(kw: float | None) -> int:
 def read_member(zip_path: Path, code: str, suffix: str) -> tuple[pd.DataFrame, str, str]:
     """Return (frame, member date, member sha256) for the <code>_<suffix>.csv member."""
     with zipfile.ZipFile(zip_path) as z:
-        info = next(i for i in z.infolist() if i.filename.upper() == f"{code}_{suffix}.CSV".upper())
+        members = members_by_name(z)
+        wanted = f"{code}_{suffix}.csv"
+        info = next((i for n, i in members.items() if n.upper() == wanted.upper()), None)
+        if info is None:
+            raise ValueError(f"{zip_path.name}: no {wanted} (members: {', '.join(list(members)[:6])}, ...); did Taipower change the file layout?")
         raw = z.read(info)
     frame = pd.read_csv(io.BytesIO(raw), encoding="utf-8-sig", dtype={"FEEDER": str})
     return frame, date(*info.date_time[:3]).isoformat(), hashlib.sha256(raw).hexdigest()

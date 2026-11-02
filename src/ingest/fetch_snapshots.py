@@ -193,7 +193,7 @@ def store(source_id: str, origin: str, fetch_url: str, blob: bytes, headers: dic
         members, file_date = [], src["file_date"]
     else:
         members = zip_members(blob)
-        data_members = [d for n, d in members if n.lower().endswith(".csv") and not n.startswith(("manifest", "schema"))]
+        data_members = [d for n, d in members if n.lower().endswith(".csv") and not n.rsplit("/", 1)[-1].startswith(("manifest", "schema"))]
         file_date = max(data_members or [d for _, d in members])
 
     out_dir = RAW / source_id / file_date

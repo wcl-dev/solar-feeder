@@ -203,7 +203,7 @@
     : path);
   const S = await getJSON("data/summary.json");
   const CS = S.counties;
-  const origin = { publisher_live: "提供者網站", wayback: "Wayback Machine" };
+  const origin = { publisher_live: "提供者網站", wayback: "Wayback Machine", wayback_relay: "Wayback Machine（當次即時擷取）" };
   const basis = { zip_member_mtime: "ZIP 內檔案日期", pdf_creation_date: "PDF 建立日期" };
   const link = (path) => (CFG.repoUrl ? `<a href="${esc(CFG.repoUrl)}/blob/${esc(CFG.repoBranch || "main")}/${esc(path)}">存檔</a>` : "");
   const $ = (id) => document.getElementById(id);
@@ -216,7 +216,7 @@
   // (every county table in one ZIP carries the same dates).
   const tableDates = (a) => {
     const m = Object.fromEntries((a.members || "").split(";").filter(Boolean).map((x) => x.split("@")));
-    const cap = Object.keys(m).find((k) => k.endsWith("_capacity.csv") && !k.startsWith("schema"));
+    const cap = Object.keys(m).find((k) => k.endsWith("_capacity.csv") && !k.split("/").pop().startsWith("schema"));
     const tr = cap && cap.replace("_capacity.csv", "_tr_feeder.csv");
     return cap && m[tr] ? `容量表 ${m[cap]}／位置表 ${m[tr]}` : a.file_date;
   };
