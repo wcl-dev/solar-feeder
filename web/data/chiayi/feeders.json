@@ -1,7 +1,7 @@
 [
  {
   "feeder": "AH31",
-  "capacity_kw": 5409.8,
+  "capacity_kw": 5391.0,
   "capacity_source": "S01",
   "capacity_county": "南投",
   "class": 3,
@@ -43,7 +43,7 @@
  },
  {
   "feeder": "JA22",
-  "capacity_kw": 5464.4,
+  "capacity_kw": 5452.2,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -57,7 +57,7 @@
  },
  {
   "feeder": "JA23",
-  "capacity_kw": 5333.9,
+  "capacity_kw": 5252.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -225,7 +225,7 @@
  },
  {
   "feeder": "JA35",
-  "capacity_kw": 4569.6,
+  "capacity_kw": 4038.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -323,7 +323,7 @@
  },
  {
   "feeder": "JA5B",
-  "capacity_kw": 10702.8,
+  "capacity_kw": 10614.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -351,7 +351,7 @@
  },
  {
   "feeder": "JA5D",
-  "capacity_kw": 10847.8,
+  "capacity_kw": 10838.8,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -435,7 +435,7 @@
  },
  {
   "feeder": "JA74",
-  "capacity_kw": 10181.6,
+  "capacity_kw": 10075.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -491,10 +491,10 @@
  },
  {
   "feeder": "JB21",
-  "capacity_kw": 3030.0,
+  "capacity_kw": 2310.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 3,
+  "class": 2,
   "transformer_points": 103,
   "main_township": "嘉義市東區",
   "main_township_share": 0.544,
@@ -519,7 +519,7 @@
  },
  {
   "feeder": "JB23",
-  "capacity_kw": 5463.7,
+  "capacity_kw": 5439.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -575,7 +575,7 @@
  },
  {
   "feeder": "JB27",
-  "capacity_kw": 4040.1,
+  "capacity_kw": 3779.1,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -603,7 +603,7 @@
  },
  {
   "feeder": "JB29",
-  "capacity_kw": 5464.1,
+  "capacity_kw": 5322.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -617,7 +617,7 @@
  },
  {
   "feeder": "JB30",
-  "capacity_kw": 5094.4,
+  "capacity_kw": 5087.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -659,7 +659,7 @@
  },
  {
   "feeder": "JB39",
-  "capacity_kw": 5417.4,
+  "capacity_kw": 5392.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -673,7 +673,7 @@
  },
  {
   "feeder": "JB40",
-  "capacity_kw": 5427.3,
+  "capacity_kw": 5374.3,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -687,7 +687,7 @@
  },
  {
   "feeder": "JC21",
-  "capacity_kw": 4468.0,
+  "capacity_kw": 4396.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -701,7 +701,7 @@
  },
  {
   "feeder": "JC22",
-  "capacity_kw": 1786.6,
+  "capacity_kw": 1767.3,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -715,7 +715,7 @@
  },
  {
   "feeder": "JC23",
-  "capacity_kw": 5388.1,
+  "capacity_kw": 4773.8,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -743,7 +743,7 @@
  },
  {
   "feeder": "JC25",
-  "capacity_kw": 5038.6,
+  "capacity_kw": 5029.6,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -757,7 +757,7 @@
  },
  {
   "feeder": "JC26",
-  "capacity_kw": 2680.1,
+  "capacity_kw": 2779.1,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -771,7 +771,7 @@
  },
  {
   "feeder": "JC27",
-  "capacity_kw": 4273.9,
+  "capacity_kw": 4254.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -785,7 +785,7 @@
  },
  {
   "feeder": "JC28",
-  "capacity_kw": 3648.7,
+  "capacity_kw": 3333.1,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -855,10 +855,10 @@
  },
  {
   "feeder": "JD28",
-  "capacity_kw": 4138.9,
+  "capacity_kw": 0.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 3,
+  "class": 0,
   "transformer_points": 37,
   "main_township": "朴子市",
   "main_township_share": 1.0,
@@ -911,10 +911,10 @@
  },
  {
   "feeder": "JD32",
-  "capacity_kw": 180.0,
+  "capacity_kw": 0.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 1,
+  "class": 0,
   "transformer_points": 170,
   "main_township": "朴子市",
   "main_township_share": 1.0,
@@ -925,10 +925,10 @@
  },
  {
   "feeder": "JD34",
-  "capacity_kw": 4693.5,
+  "capacity_kw": 1130.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 3,
+  "class": 2,
   "transformer_points": 20,
   "main_township": "朴子市",
   "main_township_share": 1.0,
@@ -1177,7 +1177,7 @@
  },
  {
   "feeder": "JF26",
-  "capacity_kw": 3603.7,
+  "capacity_kw": 3614.2,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1205,7 +1205,7 @@
  },
  {
   "feeder": "JF28",
-  "capacity_kw": 2751.3,
+  "capacity_kw": 2704.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -1233,7 +1233,7 @@
  },
  {
   "feeder": "JF30",
-  "capacity_kw": 4574.1,
+  "capacity_kw": 4531.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1317,7 +1317,7 @@
  },
  {
   "feeder": "JF36",
-  "capacity_kw": 5147.2,
+  "capacity_kw": 5150.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1345,7 +1345,7 @@
  },
  {
   "feeder": "JG22",
-  "capacity_kw": 1711.4,
+  "capacity_kw": 1701.5,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -1373,7 +1373,7 @@
  },
  {
   "feeder": "JG24",
-  "capacity_kw": 3948.9,
+  "capacity_kw": 4273.5,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1457,7 +1457,7 @@
  },
  {
   "feeder": "JG33",
-  "capacity_kw": 5364.6,
+  "capacity_kw": 5210.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1513,7 +1513,7 @@
  },
  {
   "feeder": "JG37",
-  "capacity_kw": 4792.8,
+  "capacity_kw": 4899.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1527,10 +1527,10 @@
  },
  {
   "feeder": "JG38",
-  "capacity_kw": 0.0,
+  "capacity_kw": 60.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 0,
+  "class": 1,
   "transformer_points": 316,
   "main_township": "梅山鄉",
   "main_township_share": 0.991,
@@ -1555,10 +1555,10 @@
  },
  {
   "feeder": "JG52",
-  "capacity_kw": 2845.0,
+  "capacity_kw": 3261.5,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 2,
+  "class": 3,
   "transformer_points": 21,
   "main_township": "大林鎮",
   "main_township_share": 1.0,
@@ -1723,7 +1723,7 @@
  },
  {
   "feeder": "JH24",
-  "capacity_kw": 4824.8,
+  "capacity_kw": 4795.3,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -1751,7 +1751,7 @@
  },
  {
   "feeder": "JH26",
-  "capacity_kw": 2553.6,
+  "capacity_kw": 2533.8,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -2017,7 +2017,7 @@
  },
  {
   "feeder": "JJ23",
-  "capacity_kw": 5450.0,
+  "capacity_kw": 5447.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2059,10 +2059,10 @@
  },
  {
   "feeder": "JJ31",
-  "capacity_kw": 2999.4,
+  "capacity_kw": 310.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 2,
+  "class": 1,
   "transformer_points": 70,
   "main_township": "水上鄉",
   "main_township_share": 1.0,
@@ -2087,7 +2087,7 @@
  },
  {
   "feeder": "JJ33",
-  "capacity_kw": 5240.8,
+  "capacity_kw": 5200.6,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2101,7 +2101,7 @@
  },
  {
   "feeder": "JJ34",
-  "capacity_kw": 290.0,
+  "capacity_kw": 240.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 1,
@@ -2157,7 +2157,7 @@
  },
  {
   "feeder": "JJ58",
-  "capacity_kw": 9141.2,
+  "capacity_kw": 9149.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -2171,7 +2171,7 @@
  },
  {
   "feeder": "JJ59",
-  "capacity_kw": 10805.6,
+  "capacity_kw": 10796.6,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -2241,7 +2241,7 @@
  },
  {
   "feeder": "JJ69",
-  "capacity_kw": 10306.3,
+  "capacity_kw": 10291.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -2255,7 +2255,7 @@
  },
  {
   "feeder": "JJ70",
-  "capacity_kw": 10891.8,
+  "capacity_kw": 10871.8,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -2283,7 +2283,7 @@
  },
  {
   "feeder": "JK22",
-  "capacity_kw": 3392.6,
+  "capacity_kw": 3369.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2297,7 +2297,7 @@
  },
  {
   "feeder": "JK23",
-  "capacity_kw": 2995.0,
+  "capacity_kw": 2806.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -2395,7 +2395,7 @@
  },
  {
   "feeder": "JK61",
-  "capacity_kw": 9905.5,
+  "capacity_kw": 8656.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -2493,7 +2493,7 @@
  },
  {
   "feeder": "JL27",
-  "capacity_kw": 5500.0,
+  "capacity_kw": 5153.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2549,10 +2549,10 @@
  },
  {
   "feeder": "JN21",
-  "capacity_kw": 3289.1,
+  "capacity_kw": 2460.2,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 3,
+  "class": 2,
   "transformer_points": 29,
   "main_township": "民雄鄉",
   "main_township_share": 1.0,
@@ -2563,7 +2563,7 @@
  },
  {
   "feeder": "JN22",
-  "capacity_kw": 4489.1,
+  "capacity_kw": 4462.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2633,7 +2633,7 @@
  },
  {
   "feeder": "JN27",
-  "capacity_kw": 4585.1,
+  "capacity_kw": 4822.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2661,7 +2661,7 @@
  },
  {
   "feeder": "JN29",
-  "capacity_kw": 4013.5,
+  "capacity_kw": 3931.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2689,7 +2689,7 @@
  },
  {
   "feeder": "JN31",
-  "capacity_kw": 1959.7,
+  "capacity_kw": 1945.3,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -2731,7 +2731,7 @@
  },
  {
   "feeder": "JN34",
-  "capacity_kw": 937.9,
+  "capacity_kw": 664.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 1,
@@ -2871,7 +2871,7 @@
  },
  {
   "feeder": "JO29",
-  "capacity_kw": 3150.0,
+  "capacity_kw": 3140.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -2927,7 +2927,7 @@
  },
  {
   "feeder": "JO63",
-  "capacity_kw": 6584.2,
+  "capacity_kw": 6575.2,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -2941,10 +2941,10 @@
  },
  {
   "feeder": "JO71",
-  "capacity_kw": 0.0,
+  "capacity_kw": 976.7,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 0,
+  "class": 1,
   "transformer_points": 2,
   "main_township": "太保市",
   "main_township_share": 1.0,
@@ -3011,10 +3011,10 @@
  },
  {
   "feeder": "JP21",
-  "capacity_kw": 652.0,
+  "capacity_kw": 0.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 1,
+  "class": 0,
   "transformer_points": 42,
   "main_township": "民雄鄉",
   "main_township_share": 1.0,
@@ -3095,10 +3095,10 @@
  },
  {
   "feeder": "JP27",
-  "capacity_kw": 4147.2,
+  "capacity_kw": 2801.4,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 3,
+  "class": 2,
   "transformer_points": 16,
   "main_township": "嘉義市東區",
   "main_township_share": 1.0,
@@ -3123,7 +3123,7 @@
  },
  {
   "feeder": "JP29",
-  "capacity_kw": 2765.3,
+  "capacity_kw": 2291.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -3151,7 +3151,7 @@
  },
  {
   "feeder": "JP31",
-  "capacity_kw": 5326.7,
+  "capacity_kw": 5103.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3179,7 +3179,7 @@
  },
  {
   "feeder": "JP33",
-  "capacity_kw": 3182.3,
+  "capacity_kw": 3178.3,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3263,7 +3263,7 @@
  },
  {
   "feeder": "JR24",
-  "capacity_kw": 5044.8,
+  "capacity_kw": 5025.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3277,7 +3277,7 @@
  },
  {
   "feeder": "JR25",
-  "capacity_kw": 4709.8,
+  "capacity_kw": 4655.3,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3347,7 +3347,7 @@
  },
  {
   "feeder": "JR30",
-  "capacity_kw": 4913.5,
+  "capacity_kw": 4910.2,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3417,7 +3417,7 @@
  },
  {
   "feeder": "JS25",
-  "capacity_kw": 1039.2,
+  "capacity_kw": 2485.5,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -3431,7 +3431,7 @@
  },
  {
   "feeder": "JS26",
-  "capacity_kw": 5001.6,
+  "capacity_kw": 4972.2,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3529,7 +3529,7 @@
  },
  {
   "feeder": "JS33",
-  "capacity_kw": 1800.1,
+  "capacity_kw": 2124.9,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -3823,7 +3823,7 @@
  },
  {
   "feeder": "JV32",
-  "capacity_kw": 3953.1,
+  "capacity_kw": 3936.4,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -3949,7 +3949,7 @@
  },
  {
   "feeder": "JV67",
-  "capacity_kw": 10444.9,
+  "capacity_kw": 10435.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -3963,7 +3963,7 @@
  },
  {
   "feeder": "JV68",
-  "capacity_kw": 10965.8,
+  "capacity_kw": 10738.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 4,
@@ -4033,7 +4033,7 @@
  },
  {
   "feeder": "JW25",
-  "capacity_kw": 3853.4,
+  "capacity_kw": 3812.6,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -4047,7 +4047,7 @@
  },
  {
   "feeder": "JW26",
-  "capacity_kw": 5365.6,
+  "capacity_kw": 5348.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -4075,7 +4075,7 @@
  },
  {
   "feeder": "JW28",
-  "capacity_kw": 920.0,
+  "capacity_kw": 910.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 1,
@@ -4145,7 +4145,7 @@
  },
  {
   "feeder": "JW33",
-  "capacity_kw": 4700.0,
+  "capacity_kw": 4711.8,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 3,
@@ -4243,7 +4243,7 @@
  },
  {
   "feeder": "JX25",
-  "capacity_kw": 2280.0,
+  "capacity_kw": 2290.0,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -4271,10 +4271,10 @@
  },
  {
   "feeder": "JY22",
-  "capacity_kw": 3730.0,
+  "capacity_kw": 2070.0,
   "capacity_source": "S01",
   "capacity_county": "",
-  "class": 3,
+  "class": 2,
   "transformer_points": 237,
   "main_township": "大埔鄉",
   "main_township_share": 0.595,
@@ -4285,7 +4285,7 @@
  },
  {
   "feeder": "JY27",
-  "capacity_kw": 1698.1,
+  "capacity_kw": 1589.1,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -4327,7 +4327,7 @@
  },
  {
   "feeder": "JZ22",
-  "capacity_kw": 1998.5,
+  "capacity_kw": 1988.7,
   "capacity_source": "S01",
   "capacity_county": "",
   "class": 2,
@@ -4545,8 +4545,8 @@
   "main_township": "義竹鄉",
   "main_township_share": 0.875,
   "townships": "義竹鄉、（縣界外）",
-  "lon": 120.26312,
-  "lat": 23.34032,
+  "lon": 120.26322,
+  "lat": 23.34027,
   "flags": "no_capacity_row;points_outside_county"
  },
  {
@@ -4559,8 +4559,8 @@
   "main_township": "義竹鄉",
   "main_township_share": 1.0,
   "townships": "義竹鄉",
-  "lon": 120.18203,
-  "lat": 23.29415,
+  "lon": 120.18204,
+  "lat": 23.29414,
   "flags": "no_capacity_row"
  },
  {
@@ -4656,7 +4656,7 @@
   "transformer_points": 16,
   "main_township": "水上鄉",
   "main_township_share": 0.25,
-  "townships": "水上鄉、朴子市、嘉義市東區、布袋鎮、嘉義市西區、梅山鄉、番路鄉、中埔鄉",
+  "townships": "水上鄉、朴子市、嘉義市東區、布袋鎮、番路鄉、中埔鄉、嘉義市西區、梅山鄉",
   "lon": 120.40259,
   "lat": 23.4456,
   "flags": "feeder_code_none"
