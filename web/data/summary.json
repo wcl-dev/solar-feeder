@@ -1,7 +1,7 @@
 {
  "method_version": "0.3.0",
- "built_on": "2026-10-26",
- "source_last_checked": "2026-10-12T06:40:05Z",
+ "built_on": "2026-11-02",
+ "source_last_checked": "2026-11-02T06:58:06Z",
  "scope": "彰化縣、雲林縣、嘉義縣市・配電饋線（distribution）",
  "grid_level": "distribution",
  "license": {
@@ -347,7 +347,7 @@
    "district": "彰化",
    "source_title": "台灣電力公司全國各縣市再生能源可併網容量",
    "dataset_page": "https://data.gov.tw/dataset/161874",
-   "source_last_checked": "2026-10-12T06:40:05Z",
+   "source_last_checked": "2026-11-02T06:58:06Z",
    "townships": 26,
    "map_parts_omitted": 0,
    "crs": {
@@ -634,7 +634,7 @@
    "district": "雲林",
    "source_title": "台灣電力公司雲林縣再生能源可併網容量",
    "dataset_page": "https://data.gov.tw/dataset/44208",
-   "source_last_checked": "2026-10-12T06:40:06Z",
+   "source_last_checked": "2026-11-02T07:00:47Z",
    "townships": 20,
    "map_parts_omitted": 5,
    "crs": {
@@ -1006,7 +1006,7 @@
    "district": "嘉義",
    "source_title": "台灣電力公司全國各縣市再生能源可併網容量",
    "dataset_page": "https://data.gov.tw/dataset/161874",
-   "source_last_checked": "2026-10-12T06:40:05Z",
+   "source_last_checked": "2026-11-02T06:58:06Z",
    "townships": 20,
    "map_parts_omitted": 8,
    "crs": {
