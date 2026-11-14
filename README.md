@@ -47,7 +47,9 @@ python3 -m http.server 8765 --directory web    # 本機預覽 http://localhost:8
 | S12 鄉鎮界線 | 每 90 天比對 data.gov.tw 上的下載網址 | 印出提醒，人工存檔 |
 | S04 立法院報告 | 每年 9 月 15 日自動開 issue 提醒 | 人工擷取、核對（`data/curated/`） |
 
-台電偶爾不回應 GitHub 雲端主機的連線（2026-10-11 實測：同一天一次逾時、一次正常）。直接檢查會重試一次；仍失敗時，改請 Wayback 抓取最新檔案再下載比對，檢查紀錄 `via` 欄註明 `wayback`。手動觸發 workflow 時可勾選 `via_wayback` 測試這條路徑。
+台電常不回應 GitHub 雲端主機的連線（2026-10-19 起多數週逾時；本機連線正常）。直接檢查會重試一次；仍失敗時，改請 Wayback 抓取最新檔案再下載比對，檢查紀錄 `via` 欄註明 `wayback`。手動觸發 workflow 時可勾選 `via_wayback` 測試這條路徑。兩條路都失敗時，檢查紀錄照常寫回、網站照常部署，但這次執行會亮紅叉（GitHub 依通知設定寄信），因為「這週其實沒查到」不該看起來像「這週沒有新版」。
+
+本機備援：在連得上台電的電腦執行 `fetch_snapshots.py --detect-only`，只送 HEAD 請求、比對存檔裡最新一版的修改時間與大小，不寫任何檔案，所以不會和每週的檢查紀錄 commit 衝突。出現 `CHANGED` 時，在那台電腦 `git pull` 後跑完整檢查、把新存檔推上 main，下次 workflow（或手動觸發）就會開審核 PR。
 
 審核 PR 依「已存檔、未核准」的版本開立，不看當次是否抓到新檔，所以開 PR 失敗時，下次檢查會自動再試。PR 還開著時，每週從最新的 main 重建，不會與每週的檢查紀錄 commit 衝突。**關閉 PR 代表審核不通過**，之後不會自動重開；要上線請用 `approve.py` 人工核准。
 
@@ -66,7 +68,7 @@ uv run python src/ingest/approve.py S02-2026-10-05     # 核准上線（之後�
 1. Settings → Pages → Source 選 **GitHub Actions**。
 2. Settings → Actions → General → Workflow permissions 選 **Read and write**，並勾選 **Allow GitHub Actions to create and approve pull requests**（否則無法自動開審核 PR）。
 3. 公開 repo 若 60 天沒有活動，GitHub 會停用排程；每週的檢查紀錄 commit 應可避免，頁首的逾期提醒是最後一道保險。
-4. 若本機也設了每週排程，上 GitHub 後請關掉，避免兩邊同時改 `data/manifests/` 造成衝突。
+4. 本機排程只跑 `--detect-only`（不寫檔）；不要在本機排程跑完整檢查，否則兩邊同時改 `data/manifests/` 會衝突。
 
 ## 結構
 

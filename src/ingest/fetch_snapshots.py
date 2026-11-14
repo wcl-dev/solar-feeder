@@ -18,12 +18,21 @@ Usage:
   uv run python src/ingest/fetch_snapshots.py --no-wayback-save
   uv run python src/ingest/fetch_snapshots.py --archive-manual   # also archive manual sources not yet in the archive
   uv run python src/ingest/fetch_snapshots.py --via-wayback      # test the Wayback relay used when Taipower is unreachable
+  uv run python src/ingest/fetch_snapshots.py --detect-only      # HEAD only, compare with the archive, write nothing
 
 Taipower sometimes does not answer GitHub's cloud runners (TLS handshake timeouts,
-seen 2026-10-11). A direct check is retried once; if it still fails, the file is
-checked through a fresh Wayback Machine capture instead ("via=wayback").
-New Taipower snapshots are printed as "NEW SNAPSHOT <id>" and, under GitHub
-Actions, written to $GITHUB_OUTPUT as new_snapshots=<id,id>.
+seen 2026-10-11; most weeks since 2026-10-19). A direct check is retried once; if it
+still fails, the file is checked through a fresh Wayback Machine capture instead
+("via=wayback"). New Taipower snapshots are printed as "NEW SNAPSHOT <id>"; sources
+that could be checked neither way are printed as "CHECK FAILED <id>". Under GitHub
+Actions both are written to $GITHUB_OUTPUT (new_snapshots=<id,id>, failed=<id id>);
+the workflow turns the run red when `failed` is not empty.
+
+--detect-only is for a machine that can reach Taipower when the runners cannot: it
+sends one HEAD request per archived source and compares Last-Modified and size with
+the newest archived snapshot. It writes nothing, so it never conflicts with the
+check log the workflow commits. On "CHANGED", run the full check on that machine
+and push the new raw archive; the workflow then opens the review PR.
 """
 
 from __future__ import annotations
@@ -110,12 +119,12 @@ def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def http_get(url: str, headers: dict | None = None, timeout: int = 120) -> tuple[int, bytes, dict]:
+def http_get(url: str, headers: dict | None = None, timeout: int = 120, method: str = "GET") -> tuple[int, bytes, dict]:
     # Taipower's certificate lacks a Subject Key Identifier, which Python 3.13+
     # rejects under VERIFY_X509_STRICT. Chain and hostname are still verified.
     ctx = ssl.create_default_context()
     ctx.verify_flags &= ~ssl.VERIFY_X509_STRICT
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})}, method=method)
     try:
         with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
             return r.status, r.read(), dict(r.headers)
@@ -243,6 +252,30 @@ def wayback_save(url: str) -> dict:
     return rec
 
 
+def detect() -> None:
+    """HEAD each archived source and compare with the newest archived snapshot. Writes nothing."""
+    manifest = read_csv(MANIFEST)
+    for sid, src in SOURCES.items():
+        if src["mode"] != "archive":
+            continue
+        rows = [r for r in manifest if r["source_id"] == sid]
+        latest = max(rows, key=lambda r: r["file_date"]) if rows else None
+        try:
+            _, _, headers = stage("direct", src["url"], http_get, src["url"], timeout=60, method="HEAD")
+        except Exception as e:
+            print(f"CHECK FAILED {sid}: {e}")
+            continue
+        lm = headers.get("Last-Modified", "")
+        lm_iso = parsedate_to_datetime(lm).strftime("%Y-%m-%dT%H:%M:%SZ") if lm else ""
+        size = headers.get("Content-Length", "")
+        if latest and lm_iso and lm_iso == latest["http_last_modified"] and size == latest["bytes"]:
+            print(f"same      {latest['snapshot_id']} (Last-Modified {lm_iso}, {int(size):,} B)")
+        else:
+            had = f"{latest['snapshot_id']} ({latest['http_last_modified'] or '?'}, {latest['bytes']} B)" if latest else "nothing"
+            print(f"CHANGED   {sid}: Taipower now serves Last-Modified {lm_iso or '?'}, {size or '?'} B; "
+                  f"newest archive is {had}. Run the full check here and push the new archive.")
+
+
 def last_check(checks: list[dict], source_id: str) -> datetime | None:
     times = [r["checked_at"] for r in checks if r["source_id"] == source_id and r.get("result") != "error"]
     return datetime.strptime(max(times), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) if times else None
@@ -254,7 +287,11 @@ def main() -> None:
     ap.add_argument("--no-wayback-save", action="store_true", help="do not ask Wayback to capture new versions")
     ap.add_argument("--archive-manual", action="store_true", help="archive manual sources that are not archived yet")
     ap.add_argument("--via-wayback", action="store_true", help="skip the direct request and check through Wayback (test the relay)")
+    ap.add_argument("--detect-only", action="store_true", help="HEAD only: compare Taipower's files with the archive, write nothing")
     args = ap.parse_args()
+    if args.detect_only:
+        detect()
+        return
 
     manifest = {r["sha256"]: r for r in read_csv(MANIFEST)}
     checks = read_csv(CHECKS)
@@ -263,7 +300,7 @@ def main() -> None:
             r["result"] = "new" if r.pop("changed", "") == "True" else "unchanged"
     state = json.loads(HTTP_STATE.read_text()) if HTTP_STATE.exists() else {}
     saves = read_csv(WAYBACK_SAVES)
-    new_snapshots, notices = [], []
+    new_snapshots, notices, failed = [], [], []
 
     for sid, src in SOURCES.items():
         if src["mode"] == "manual":
@@ -288,6 +325,7 @@ def main() -> None:
                     notices.append(f"NEW RELEASE {sid}: data.gov.tw now lists {listed} — archive manually")
             except Exception as e:
                 result = f"error"
+                failed.append(sid)
                 notices.append(f"CHECK FAILED {sid}: {type(e).__name__}: {e}")
             checks.append({"checked_at": now(), "source_id": sid, "result": result, "sha256": "", "snapshot_id": "", "via": "direct"})
             print(f"{result:9s} {sid}")
@@ -311,6 +349,7 @@ def main() -> None:
                 status, via = 200, "wayback"
             except Exception as e2:
                 checks.append({"checked_at": now(), "source_id": sid, "result": "error", "sha256": "", "snapshot_id": "", "via": ""})
+                failed.append(sid)
                 notices.append(f"CHECK FAILED {sid}: {type(e2).__name__}: {e2}")
                 continue
         if status == 304:
@@ -363,6 +402,7 @@ def main() -> None:
     if os.environ.get("GITHUB_OUTPUT"):
         with open(os.environ["GITHUB_OUTPUT"], "a") as f:
             f.write(f"new_snapshots={','.join(new_snapshots)}\n")
+            f.write(f"failed={' '.join(failed)}\n")
 
 
 if __name__ == "__main__":

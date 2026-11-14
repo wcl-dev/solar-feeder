@@ -39,11 +39,15 @@ jobs:
   check:
     if: github.event.schedule != '0 1 15 9 *'
     runs-on: ubuntu-latest
+    outputs:
+      failed: ${{ steps.fetch.outputs.failed }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
-      - env:
+      - name: Check sources
+        id: fetch
+        env:
           VIA_WAYBACK: ${{ inputs.via_wayback }}
         run: |
           if [ "$VIA_WAYBACK" = "true" ]; then
@@ -103,3 +107,17 @@ jobs:
       pages: write
       id-token: write
     uses: ./.github/workflows/pages.yml
+
+  # A source that could be reached neither directly nor through a fresh Wayback capture
+  # still gets its check log committed and the site deployed; this job then turns the run
+  # red, so a week in which nothing was really checked does not look like a quiet week.
+  alert:
+    needs: [check, deploy]
+    if: ${{ !cancelled() && needs.check.outputs.failed != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          FAILED: ${{ needs.check.outputs.failed }}
+        run: |
+          echo "::error title=Sources not checked::${FAILED} reached neither Taipower nor a fresh Wayback capture, so a new version may be waiting. Check from a machine that reaches Taipower: fetch_snapshots.py --detect-only (README, 自動更新)."
+          exit 1
